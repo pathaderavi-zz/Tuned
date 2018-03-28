@@ -12,6 +12,9 @@
 		40178E2F206A7BB4002A9B0E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 40178E2D206A7BB4002A9B0E /* Main.storyboard */; };
 		40178E31206A7BB4002A9B0E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 40178E30206A7BB4002A9B0E /* Assets.xcassets */; };
 		40178E34206A7BB4002A9B0E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 40178E32206A7BB4002A9B0E /* LaunchScreen.storyboard */; };
+		40178E3D206A808B002A9B0E /* Requests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40178E3C206A808B002A9B0E /* Requests.swift */; };
+		40178E40206AD8C6002A9B0E /* Artist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40178E3F206AD8C6002A9B0E /* Artist.swift */; };
+		40507EC9206B302B00290E34 /* ArtistListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40507EC8206B302B00290E34 /* ArtistListCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +25,9 @@
 		40178E30206A7BB4002A9B0E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		40178E33206A7BB4002A9B0E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		40178E35206A7BB4002A9B0E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		40178E3C206A808B002A9B0E /* Requests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Requests.swift; sourceTree = "<group>"; };
+		40178E3F206AD8C6002A9B0E /* Artist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Artist.swift; sourceTree = "<group>"; };
+		40507EC8206B302B00290E34 /* ArtistListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistListCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +60,9 @@
 		40178E28206A7BB4002A9B0E /* Tuned */ = {
 			isa = PBXGroup;
 			children = (
+				4075084B206B32B6005F1336 /* View */,
+				40178E3E206AD8AE002A9B0E /* Model */,
+				40178E3B206A8055002A9B0E /* Helper */,
 				40178E29206A7BB4002A9B0E /* AppDelegate.swift */,
 				40178E2B206A7BB4002A9B0E /* ViewController.swift */,
 				40178E2D206A7BB4002A9B0E /* Main.storyboard */,
@@ -62,6 +71,30 @@
 				40178E35206A7BB4002A9B0E /* Info.plist */,
 			);
 			path = Tuned;
+			sourceTree = "<group>";
+		};
+		40178E3B206A8055002A9B0E /* Helper */ = {
+			isa = PBXGroup;
+			children = (
+				40178E3C206A808B002A9B0E /* Requests.swift */,
+			);
+			path = Helper;
+			sourceTree = "<group>";
+		};
+		40178E3E206AD8AE002A9B0E /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				40178E3F206AD8C6002A9B0E /* Artist.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		4075084B206B32B6005F1336 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				40507EC8206B302B00290E34 /* ArtistListCell.swift */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -136,7 +169,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				40178E3D206A808B002A9B0E /* Requests.swift in Sources */,
 				40178E2C206A7BB4002A9B0E /* ViewController.swift in Sources */,
+				40507EC9206B302B00290E34 /* ArtistListCell.swift in Sources */,
+				40178E40206AD8C6002A9B0E /* Artist.swift in Sources */,
 				40178E2A206A7BB4002A9B0E /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

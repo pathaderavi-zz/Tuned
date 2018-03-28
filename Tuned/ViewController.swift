@@ -30,23 +30,22 @@ class ViewController: UIViewController,UICollectionViewDelegate,UICollectionView
 
     
     @objc func setupFlowLayout(){
-        if (UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown){
-            print("portrait")
-        let space:CGFloat = 3.0
-        let dimension = (view.frame.size.width - (2 * space)) / 2.0
-        
-        flowLayout.minimumInteritemSpacing = space
-        flowLayout.minimumLineSpacing = space
-        flowLayout.itemSize = CGSize(width: dimension, height: dimension*1.60)
-        }else{
-            print("landscape")
+        if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight){
             let space:CGFloat = 3.0
             let dimension = (view.frame.size.width - (2 * space)) / 3.0
             
             flowLayout.minimumInteritemSpacing = space
             flowLayout.minimumLineSpacing = space
             flowLayout.itemSize = CGSize(width: dimension, height: dimension*1.6)
+        }else{
+            let space:CGFloat = 3.0
+            let dimension = (view.frame.size.width - (2 * space)) / 2.0
+            
+            flowLayout.minimumInteritemSpacing = space
+            flowLayout.minimumLineSpacing = space
+            flowLayout.itemSize = CGSize(width: dimension, height: dimension*1.60)
         }
+    
     }
 
 }

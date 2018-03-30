@@ -13,4 +13,5 @@ class ArtistListCell:UICollectionViewCell{
     @IBOutlet weak var artistImage: UIImageView!
     @IBOutlet weak var artistName: UILabel!
     //ADD Loading indicator
+    @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
 }

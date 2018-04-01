@@ -179,7 +179,7 @@
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalCentering" alignment="center" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="OFc-Qh-5Ve">
                                         <rect key="frame" x="0.0" y="245" width="367" height="50"/>
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NTw-tE-n8f">
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" reversesTitleShadowWhenHighlighted="YES" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NTw-tE-n8f">
                                                 <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" secondItem="NTw-tE-n8f" secondAttribute="height" multiplier="1:1" id="ES6-5m-vCO"/>
@@ -187,8 +187,11 @@
                                                     <constraint firstAttribute="height" constant="50" id="yTh-t0-OWB"/>
                                                 </constraints>
                                                 <state key="normal" image="if_11_Media_social_website_youtube_2657544"/>
+                                                <connections>
+                                                    <action selector="youtubeButtonClicked:" destination="HSP-97-CZg" eventType="touchUpInside" id="USa-iZ-k7Q"/>
+                                                </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UGl-Fg-SvK">
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" reversesTitleShadowWhenHighlighted="YES" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UGl-Fg-SvK">
                                                 <rect key="frame" x="105.5" y="0.0" width="50" height="50"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="50" id="8jK-Hc-RvM"/>
@@ -196,8 +199,11 @@
                                                     <constraint firstAttribute="width" secondItem="UGl-Fg-SvK" secondAttribute="height" multiplier="1:1" id="hEo-93-eNZ"/>
                                                 </constraints>
                                                 <state key="normal" image="if_12_Media_social_website_Twitter_2657545"/>
+                                                <connections>
+                                                    <action selector="twitterButtonClicked:" destination="HSP-97-CZg" eventType="touchUpInside" id="LYT-hf-NP9"/>
+                                                </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="o4c-2u-5XO">
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" reversesTitleShadowWhenHighlighted="YES" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="o4c-2u-5XO">
                                                 <rect key="frame" x="211.5" y="0.0" width="50" height="50"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="50" id="4sL-An-Scf"/>
@@ -205,8 +211,11 @@
                                                     <constraint firstAttribute="width" secondItem="o4c-2u-5XO" secondAttribute="height" multiplier="1:1" id="ISO-Xq-Jsc"/>
                                                 </constraints>
                                                 <state key="normal" image="if_1_Media_social_website_facebook_2657542"/>
+                                                <connections>
+                                                    <action selector="facebookButtonClicked:" destination="HSP-97-CZg" eventType="touchUpInside" id="I8N-ZH-rDn"/>
+                                                </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="C2c-ll-GNq">
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" reversesTitleShadowWhenHighlighted="YES" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="C2c-ll-GNq">
                                                 <rect key="frame" x="317" y="0.0" width="50" height="50"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="50" id="Ffc-EY-I0W"/>
@@ -214,6 +223,9 @@
                                                     <constraint firstAttribute="width" secondItem="C2c-ll-GNq" secondAttribute="height" multiplier="1:1" id="VSj-kl-X3Y"/>
                                                 </constraints>
                                                 <state key="normal" image="if_2_Media_social_website_instagram_2657553"/>
+                                                <connections>
+                                                    <action selector="instagramButtonClicked:" destination="HSP-97-CZg" eventType="touchUpInside" id="cao-HJ-Aut"/>
+                                                </connections>
                                             </button>
                                         </subviews>
                                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -331,24 +343,19 @@
                         <outlet property="c2" destination="1m4-7O-TCr" id="PdV-4Z-lW0"/>
                         <outlet property="eventsButton" destination="YoN-pj-z64" id="2w3-uj-u1h"/>
                         <outlet property="eventsContainer" destination="6sQ-Bd-LNp" id="i44-Lp-Cve"/>
+                        <outlet property="facebookButton" destination="o4c-2u-5XO" id="HFb-LM-9kd"/>
                         <outlet property="favButton" destination="yNm-jg-XPw" id="i7Y-kS-8Ul"/>
                         <outlet property="imageView" destination="GNW-ZT-8XD" id="OJF-qT-DJG"/>
+                        <outlet property="instagramButton" destination="C2c-ll-GNq" id="h9m-wo-SYL"/>
                         <outlet property="onTour" destination="mut-wG-rSb" id="YAP-Nf-gTt"/>
                         <outlet property="scrollView" destination="TWF-Fu-WTY" id="dcx-vc-9UJ"/>
                         <outlet property="tracksButton" destination="xnM-CI-w95" id="ydh-cA-kRc"/>
+                        <outlet property="twitterButton" destination="UGl-Fg-SvK" id="Fbb-74-D0K"/>
                         <outlet property="yelloFav" destination="X1t-H5-fkP" id="Jng-zO-SpT"/>
+                        <outlet property="youtubeButton" destination="NTw-tE-n8f" id="6Yn-lX-rEX"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4Pq-xo-ffs" userLabel="First Responder" sceneMemberID="firstResponder"/>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Q7T-3E-pkP">
-                    <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
-                    <constraints>
-                        <constraint firstAttribute="width" secondItem="Q7T-3E-pkP" secondAttribute="height" multiplier="1:1" id="ING-tc-w8t"/>
-                        <constraint firstAttribute="height" constant="50" id="V42-KS-Z6J"/>
-                        <constraint firstAttribute="width" constant="50" id="VLo-4X-jC9"/>
-                    </constraints>
-                    <state key="normal" title="Button" image="if_11_Media_social_website_youtube_2657544"/>
-                </button>
             </objects>
             <point key="canvasLocation" x="2396" y="-46.326836581709152"/>
         </scene>

@@ -21,6 +21,109 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
     @IBOutlet weak var c1: UIView! // tracksContainer
     var tracksController:TracksContainer!
     var eventsController:EventsContainer!
+    var allSocialHandles = [String:AnyObject]()
+    @IBOutlet weak var youtubeButton: UIButton!
+    @IBOutlet weak var instagramButton: UIButton!
+    @IBOutlet weak var twitterButton: UIButton!
+    @IBOutlet weak var facebookButton: UIButton!
+    
+    @IBAction func youtubeButtonClicked(_ sender: Any) {
+        
+        if let youtubeUrl = allSocialHandles["youtube"] as? String{
+            var appUrl:String
+            if (youtubeUrl.range(of: "https") != nil){
+                appUrl = youtubeUrl.replacingOccurrences(of: "https", with: "youtube")
+            }else{
+                appUrl = youtubeUrl.replacingOccurrences(of: "http", with: "youtube")
+            }
+            if UIApplication.shared.canOpenURL(URL(string:appUrl)!){
+                UIApplication.shared.open(URL(string:appUrl)!, options: [:], completionHandler: { (success) in
+                    
+                })
+            }else{
+                UIApplication.shared.open(URL(string:youtubeUrl)!, options: [:], completionHandler: { (success) in
+                    
+                })         }
+            
+        }else{
+            //Show alert , does not contain url
+        }
+    }
+    @IBAction func twitterButtonClicked(_ sender: Any) {
+        if let url = allSocialHandles["twitter"] as? String {
+            var appUrl:String
+            
+            if (url.range(of: "https") != nil){
+                appUrl = url.replacingOccurrences(of: "https", with: "twitter")
+            }else{
+                appUrl = url.replacingOccurrences(of: "http", with: "twitter")
+            }
+            
+            if (appUrl.range(of: "www.twitter.com") != nil) {
+                appUrl = appUrl.replacingOccurrences(of: "www.twitter.com/", with: "user?screen_name=")
+            }else{
+                appUrl = appUrl.replacingOccurrences(of: "twitter.com/", with: "user?screen_name=")
+            }
+            if appUrl.last == "/"{
+                appUrl.removeLast()
+            }
+            if UIApplication.shared.canOpenURL(URL(string:appUrl)!){
+                UIApplication.shared.open(URL(string:appUrl)!, options: [:], completionHandler: { (success) in
+                    
+                })
+            }else{
+                UIApplication.shared.open(URL(string:url)!, options: [:], completionHandler: { (success) in
+                    
+                })
+                
+            }
+        }else{
+            //Show alert
+        }
+    }
+    @IBAction func instagramButtonClicked(_ sender: Any) {
+        if let url = allSocialHandles["instagram"] as? String {
+            var appUrl:String
+            
+            if (url.range(of: "https") != nil){
+                appUrl = url.replacingOccurrences(of: "https", with: "instagram")
+            }else{
+                appUrl = url.replacingOccurrences(of: "http", with: "instagram")
+            }
+            
+            if (appUrl.range(of: "www.instagram.com") != nil) {
+                appUrl = appUrl.replacingOccurrences(of: "www.instagram.com/", with: "user?username=")
+            }else{
+                appUrl = appUrl.replacingOccurrences(of: "instagram.com/", with: "user?username=")
+            }
+            if appUrl.last == "/"{
+                appUrl.removeLast()
+            }
+            if UIApplication.shared.canOpenURL(URL(string:appUrl)!){
+                UIApplication.shared.open(URL(string:appUrl)!, options: [:], completionHandler: { (success) in
+                    
+                })
+            }else{
+                UIApplication.shared.open(URL(string:url)!, options: [:], completionHandler: { (success) in
+                    
+                })
+                
+            }
+        }else{
+            //Show alert
+        }
+        
+    }
+    @IBAction func facebookButtonClicked(_ sender: Any) {
+        if let facebookUrl = allSocialHandles["facebook"] as? String {
+            UIApplication.shared.open(URL(string:facebookUrl)!, options: [:], completionHandler: { (success) in
+                
+            })
+            
+        }
+    }
+    
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let verticalIndicator = scrollView.subviews.last as? UIImageView
         verticalIndicator?.backgroundColor = UIColor.gray
@@ -34,7 +137,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
         self.navigationItem.title = artistName
         onTour.layer.cornerRadius = onTour.frame.width/2
         onTour.layer.masksToBounds = true
-       scrollView.delegate = self
+        scrollView.delegate = self
         NotificationCenter.default.addObserver(self, selector: #selector(imageFit), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
         let updatedName = artistName.replacingOccurrences(of: " " , with: "+")
         imageView.image = UIImage(data:imageData)
@@ -42,7 +145,10 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
         activateBorder(button: bioButton)
         yelloFav.isHidden = true
         DispatchQueue.global(qos:.userInitiated).async {
+            
             artistDataDownload(artist: updatedName, completionHadler: { (success,artist) in
+                
+                
                 self.currentArtist = artist
                 DispatchQueue.main.async {
                     let controller = self.storyboard!.instantiateViewController(withIdentifier: "bioContainer") as! BioContainer
@@ -54,6 +160,13 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
                     controller.bioLabelText = artist.bioContent
                     controller.lastFmUrl = NSMutableAttributedString(string:artist.bioContent)
                     self.c2.addSubview(controller.view)
+                }
+                
+                getSocialHandles(mbid: artist.mbid) { (success, result) in
+                    if success{
+                        self.allSocialHandles = result
+                        
+                    }
                 }
             })
             

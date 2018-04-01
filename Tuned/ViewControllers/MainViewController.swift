@@ -21,11 +21,7 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        getSocialHandles(mbid: "650e7db6-b795-4eb5-a702-5ea2fc46c848") { (success, result) in
-            if success{
-                print(success)
-            }
-        }
+    
         NotificationCenter.default.addObserver(self, selector: #selector(setupFlowLayout), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
         DispatchQueue.global(qos: .userInitiated).async {
             getTopArtists { ab in

@@ -199,8 +199,8 @@ func getSocialHandles(mbid:String,completionHandler:@escaping(_ success:Bool,_ r
                     }
                 }
             }
+            completionHandler(true,result)
         }
-        print(result)
     }
     task.resume()
 }

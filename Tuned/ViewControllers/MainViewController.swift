@@ -61,11 +61,10 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
 extension MainViewController{
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print(allArtists.count)
         return allArtists.count
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("here")
+
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Artist", for: indexPath) as! ArtistListCell
         let key = Array(allArtists.keys)[indexPath.row]
         imageData = allImages[indexPath.row]

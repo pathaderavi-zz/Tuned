@@ -67,15 +67,14 @@ func imageDownload(imageUrl:String,completionHandler:@escaping(_ success:Bool,_ 
     task.resume()
 }
 
-func artistDataDownload(artist:String,completionHadler:@escaping(_ success:Bool,_ bio:String)->Void){
+func artistDataDownload(artist:String,completionHadler:@escaping(_ success:Bool,_ artist:Artist)->Void){
     let session = URLSession.shared
-    let stringUrl = "https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=\(artist.folding(options: .diacriticInsensitive,locale: .current))&api_key=63bc85712ced4b9c92bed61d2e60441e&format=json"
-    print(stringUrl)
+    let updatedArtist = artist.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
+    let stringUrl = "https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=\(updatedArtist)&api_key=63bc85712ced4b9c92bed61d2e60441e&format=json"
     let request = URLRequest(url:URL(string:stringUrl)!)
     
     let task = session.dataTask(with: request) { (data, response, error) in
         if error != nil {
-            print(error?.localizedDescription)
             return
         }
         let parsedResult:[String:AnyObject]!
@@ -86,15 +85,44 @@ func artistDataDownload(artist:String,completionHadler:@escaping(_ success:Bool,
             fatalError("Cannot Deserialize")
         }
         if let set1 = parsedResult["artist"] as? [String:AnyObject]{
-            if let set2 = set1["bio"]{
-                if let bioContent = set2["content"] as? String{
-                    //print(bioContent)
-                    completionHadler(true,bioContent)
-                }
-            }
+            
+            let result = Artist.init(dictionary: set1)
+
+            completionHadler(true,result)
         }
        
         
+    }
+    task.resume()
+}
+
+func getTopTracks(artistName:String,completionHandler:@escaping(_ success:Bool,_ result: [String])->Void){
+    var result = [String]()
+    let updatedArtist = artistName.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
+    let url = "https://ws.audioscrobbler.com/2.0/?method=artist.gettoptracks&limit=10&artist=\(updatedArtist)&api_key=63bc85712ced4b9c92bed61d2e60441e&format=json"
+    let request = URLRequest(url: URL(string:url)!)
+    let sesssion = URLSession.shared
+    
+    let task = sesssion.dataTask(with: request) { (data, response, error) in
+        guard error == nil else {
+            return
+        }
+        let parsedResult:[String:AnyObject]
+        do {
+            try parsedResult = JSONSerialization.jsonObject(with: data!, options: .allowFragments) as! [String:AnyObject]
+        }catch{
+            fatalError("Cannot parse")
+        }
+        if let topTracks = parsedResult["toptracks"] as? [String:AnyObject] {
+            if let tracks = topTracks["track"] as? [[String:AnyObject]]{
+                for track in tracks{
+                    if let trackName = track["name"]{
+                        result.append(trackName as! String)
+                    }
+                }
+                completionHandler(true,result)
+            }
+        }
     }
     task.resume()
 }

@@ -10,7 +10,16 @@ import Foundation
 import UIKit
 
 class BioContainer:UIViewController{
+    @IBOutlet weak var bioLabel: UILabel!
+    var bioLabelText:String!
+    @IBOutlet weak var bioLabelTextView: UITextView!
+    var lastFmUrl:NSMutableAttributedString!
     override func viewDidLoad() {
-        
+      
+        bioLabelTextView.isEditable = false
+        bioLabelTextView.dataDetectorTypes = .link
+        bioLabelTextView.isSelectable = true
+        bioLabelTextView.text = bioLabelText    
     }
+    
 }

@@ -16,12 +16,32 @@ class Artist{
     var onTour = ""
     //var similarArtists = "" // Use Dictionary Here
     //var tags = "" // Use array/Dictionary here
-    var bioLink = "" //Append +Wiki
+    //var bioLink = "" //Append +Wiki
     var summary = ""
     var bioContent = ""
     
     
     init(dictionary:[String:AnyObject]) {
-      
+        name = dictionary["name"] as! String
+        mbid = dictionary["mbid"] as! String
+        onTour = dictionary["ontour"] as! String
+        lastFmUrl = dictionary["url"] as! String
+        if let set2 = dictionary["bio"]{
+            if let bioContent = set2["summary"] as? String{
+                self.bioContent = bioContent
+            }
+        }
+        print(name)
+        if let imageSet = dictionary["image"] as? [[String:AnyObject]]{
+     
+            for i in imageSet{
+                if i["size"] as! String == "extralarge"{
+                    self.imageUrl = i["#text"] as! String
+                }
+            }
+            
+        }
     }
+
+    
 }

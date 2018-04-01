@@ -127,5 +127,37 @@ func getTopTracks(artistName:String,completionHandler:@escaping(_ success:Bool,_
     task.resume()
 }
 
+func getLatestEvents(artistMbid:String,completionHandler:@escaping(_ success:Bool,_ result:[String:Bool])->Void){
+    var result = [String:Bool]()
+    let url = "https://musicbrainz.org/ws/2/artist/\(artistMbid)?inc=event-rels&fmt=json"
+    let request = URLRequest(url:URL(string:url)!)
+    let session = URLSession.shared
+    let task = session.dataTask(with: request) { (data, response, error) in
+        guard error == nil else{
+            return
+        }
+        let parsedResult:[String:AnyObject]!
+        do {
+            try parsedResult = JSONSerialization.jsonObject(with: data!, options: .allowFragments) as! [String:AnyObject]
+        }catch{
+            fatalError("Cannot Parse")
+        }
+        if let relations = parsedResult["relations"] as? [Any]{
+            for p in relations{
+                if let dict = p as? [String:AnyObject]{
+                    if let events = dict["event"] as? [String:AnyObject]{
+                        if let eventName = events["name"] as? String, let cancelled = events["cancelled"] as? Bool{
+                            result[eventName] = cancelled
+                        }
+                        
+                    }
+                }
+            }
+            completionHandler(true,result)
+        }
+    }
+    task.resume()
+}
+
 
 

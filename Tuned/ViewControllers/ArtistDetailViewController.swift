@@ -120,7 +120,6 @@ class ArtistDetailViewController: UIViewController{
                             
                             self.tracksController.allTracks = allTracks
                             self.c1.addSubview(self.tracksController.view)
-                            //controller.tableVIew.reloadData()
                         }
                     }
                 })
@@ -142,7 +141,11 @@ class ArtistDetailViewController: UIViewController{
                 self.c1.alpha = 0
                 
         }) { (completed) in
-    
+            DispatchQueue.global(qos: .userInitiated).async {
+                getLatestEvents(artistMbid: self.currentArtist.mbid, completionHandler: { (success, some) in
+                    print(success)
+                })
+            }
         }
     }
     

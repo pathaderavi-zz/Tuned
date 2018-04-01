@@ -33,8 +33,10 @@ class TracksContainer:UIViewController, UITableViewDataSource, UITableViewDelega
         super.viewDidLoad()
         tableVIew.delegate = self
         tableVIew.dataSource = self
-        tableVIew.rowHeight = 28
-        tableVIew.tableFooterView = UIView()
+//        tableVIew.rowHeight = 28
+//        tableVIew.tableFooterView = UIView()
+        tableVIew.bounces = false
+        tableVIew.indicatorStyle = .white
         tableVIew.reloadData()
     }
 

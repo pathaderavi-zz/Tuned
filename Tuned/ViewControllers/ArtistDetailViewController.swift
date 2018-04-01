@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class ArtistDetailViewController: UIViewController{
+class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
     var artistName:String!
     var imageData:Data!
     @IBOutlet weak var scrollView: UIScrollView!
@@ -20,15 +20,21 @@ class ArtistDetailViewController: UIViewController{
     @IBOutlet weak var c2: UIView! // bioContainer
     @IBOutlet weak var c1: UIView! // tracksContainer
     var tracksController:TracksContainer!
+    var eventsController:EventsContainer!
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let verticalIndicator = scrollView.subviews.last as? UIImageView
+        verticalIndicator?.backgroundColor = UIColor.gray
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         tracksController = self.storyboard!.instantiateViewController(withIdentifier: "tracksContainer") as! TracksContainer
+        eventsController = self.storyboard?.instantiateViewController(withIdentifier: "eventsContainer") as! EventsContainer
         scrollView.bounces = false
         self.onTour.isHidden = true
         self.navigationItem.title = artistName
         onTour.layer.cornerRadius = onTour.frame.width/2
         onTour.layer.masksToBounds = true
-       
+       scrollView.delegate = self
         NotificationCenter.default.addObserver(self, selector: #selector(imageFit), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
         let updatedName = artistName.replacingOccurrences(of: " " , with: "+")
         imageView.image = UIImage(data:imageData)
@@ -117,7 +123,6 @@ class ArtistDetailViewController: UIViewController{
                 getTopTracks(artistName: self.currentArtist.name, completionHandler: { (success, allTracks) in
                     if success {
                         DispatchQueue.main.async {
-                            
                             self.tracksController.allTracks = allTracks
                             self.c1.addSubview(self.tracksController.view)
                         }
@@ -143,7 +148,13 @@ class ArtistDetailViewController: UIViewController{
         }) { (completed) in
             DispatchQueue.global(qos: .userInitiated).async {
                 getLatestEvents(artistMbid: self.currentArtist.mbid, completionHandler: { (success, some) in
-                    print(success)
+                    if success{
+                        DispatchQueue.main.async {
+                            self.eventsController.allEvents = some
+                            self.eventsContainer.addSubview(self.eventsController.view)
+                            self.eventsController.tableView.reloadData()    
+                        }
+                    }
                 })
             }
         }

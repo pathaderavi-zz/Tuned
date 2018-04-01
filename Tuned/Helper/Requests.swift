@@ -99,7 +99,7 @@ func artistDataDownload(artist:String,completionHadler:@escaping(_ success:Bool,
 func getTopTracks(artistName:String,completionHandler:@escaping(_ success:Bool,_ result: [String])->Void){
     var result = [String]()
     let updatedArtist = artistName.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
-    let url = "https://ws.audioscrobbler.com/2.0/?method=artist.gettoptracks&limit=10&artist=\(updatedArtist)&api_key=63bc85712ced4b9c92bed61d2e60441e&format=json"
+    let url = "https://ws.audioscrobbler.com/2.0/?method=artist.gettoptracks&limit=20&artist=\(updatedArtist)&api_key=63bc85712ced4b9c92bed61d2e60441e&format=json"
     let request = URLRequest(url: URL(string:url)!)
     let sesssion = URLSession.shared
     
@@ -129,7 +129,7 @@ func getTopTracks(artistName:String,completionHandler:@escaping(_ success:Bool,_
 
 func getLatestEvents(artistMbid:String,completionHandler:@escaping(_ success:Bool,_ result:[String:Bool])->Void){
     var result = [String:Bool]()
-    let url = "https://musicbrainz.org/ws/2/artist/\(artistMbid)?inc=event-rels&fmt=json"
+    let url = "https://musicbrainz.org/ws/2/artist/\(artistMbid)?inc=event-rels&fmt=json&limit=20"
     let request = URLRequest(url:URL(string:url)!)
     let session = URLSession.shared
     let task = session.dataTask(with: request) { (data, response, error) in
@@ -155,6 +155,52 @@ func getLatestEvents(artistMbid:String,completionHandler:@escaping(_ success:Boo
             }
             completionHandler(true,result)
         }
+    }
+    task.resume()
+}
+
+func getSocialHandles(mbid:String,completionHandler:@escaping(_ success:Bool,_ result:[String:AnyObject])->Void){
+    var result = [String:AnyObject]()
+    let url = "https://musicbrainz.org/ws/2/artist/\(mbid)?inc=url-rels&fmt=json"
+    let session = URLSession.shared
+    let request = URLRequest(url:URL(string:url)!)
+    print(url)
+    let task = session.dataTask(with: request) { (data, response, error) in
+        guard error == nil else{
+            return
+        }
+        let parsedResult:[String:AnyObject]!
+        
+        do{
+            try parsedResult = JSONSerialization.jsonObject(with: data!, options: .allowFragments) as! [String:AnyObject]
+        }catch{
+            fatalError("Cannot parse")
+        }
+        if let relations = parsedResult["relations"] as? [Any]{
+            for r in relations{
+             
+                if let dict = r as? [String:AnyObject]{
+                    if let urlDict = dict["url"] as? [String:AnyObject]{
+                        if let urlString = urlDict["resource"] as? String {
+                            if (urlString.range(of: "youtube") != nil){
+                                result["youtube"] = urlString as AnyObject
+                            }
+                            if (urlString.range(of: "instagram") != nil){
+                                result["instagram"] = urlString as AnyObject
+                            }
+                            if (urlString.range(of: "twitter") != nil){
+                                result["twitter"] = urlString as AnyObject
+                            }
+                            if (urlString.range(of: "facebook") != nil){
+                                result["facebook"] = urlString as AnyObject
+                            }
+                        }
+                        
+                    }
+                }
+            }
+        }
+        print(result)
     }
     task.resume()
 }

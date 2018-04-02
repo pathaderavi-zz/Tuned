@@ -12,10 +12,15 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
+    
+    let dataController = DataController(modelName:"Artists")
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        dataController.load()
+        
+        let navigationController = window?.rootViewController as! UINavigationController
+        let mainController = navigationController.topViewController as! MainViewController
+        //mainController.dataController = dataController
         return true
     }
 

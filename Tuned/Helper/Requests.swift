@@ -31,7 +31,7 @@ func getTopArtists(completionHandler:@escaping(_ allImages:[String:String])->Voi
                     if let b = a ["image"] as? [[String:AnyObject]]{
                         for b1 in b {
                             if let medium = b1["size"] as? String {
-                                if medium == "extralarge"{
+                                if medium == "large"{
                                     //print(b1["#text"] as Any)
                                     if let name = a["name"] as! String? {
                                         if let imageUrl = b1["#text"] as! String?{

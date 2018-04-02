@@ -21,7 +21,7 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-    
+        
         NotificationCenter.default.addObserver(self, selector: #selector(setupFlowLayout), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
         DispatchQueue.global(qos: .userInitiated).async {
             getTopArtists { ab in
@@ -30,18 +30,13 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
                 DispatchQueue.main.async {
                     self.collectionView.delegate = self
                     self.collectionView.dataSource = self
+                    self.collectionView.decelerationRate = 0.4
                     self.collectionView.reloadData()
                     
                 }
-//                var count:IndexPath = IndexPath(row:0,section:0)
-//                for (k,v) in ab {
-//                    imageDownload(imageUrl:v, completionHandler: { (success, data) in
-//                        self.allImageData[count] = data
-//                        count = IndexPath(row: count.row + 1, section: 0)
-//                        print(count)
-//                    })
-//                }
-
+                
+                
+                
             }
             
         }
@@ -77,7 +72,7 @@ extension MainViewController{
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Artist", for: indexPath) as! ArtistListCell
-       // cell.clearsContextBeforeDrawing = true
+        // cell.clearsContextBeforeDrawing = true
         let key = Array(allArtists.keys)[indexPath.row]
         imageData = allImageData[indexPath]
         let array = allArtists[key]
@@ -86,16 +81,13 @@ extension MainViewController{
         
     }
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-                cell.clearsContextBeforeDrawing = true
-        
+            //Can implement to download a chunk of images
     }
-    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        print(indexPath)
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Artist", for: indexPath) as! ArtistListCell
-
+        
         cell.loadingIndicator.startAnimating()
-       
+        
         let key = Array(allArtists.keys)[indexPath.row]
         let array = allArtists[key]
         if allImageData[indexPath] != nil {
@@ -104,26 +96,37 @@ extension MainViewController{
             cell.artistName.text = key as String
             return cell
         }else{
+            print(indexPath)
             cell.artistImage.image = #imageLiteral(resourceName: "placeholder")
             cell.artistName.text = key as String
+            collectionView.reloadItems(at: [indexPath])
             DispatchQueue.global(qos: .userInitiated).async {
-                cell.reloadInputViews()
                 imageDownload(imageUrl: array as! String, completionHandler: { (success, data) in
                     if success{
                         self.allImageData[indexPath] = data
                         DispatchQueue.main.async {
-                            cell.reloadInputViews()
                             cell.artistImage.image = UIImage(data:self.allImageData[indexPath]!)
                             cell.loadingIndicator.stopAnimating()
                             cell.artistName.text = key as String
-                            cell.reloadInputViews()
+                            collectionView.reloadItems(at: [indexPath])
                         }
                     }
                 })
+                
+//                if indexPath.row > 3 {
+//                    var c = indexPath.row + 10
+//                    if c > self.allArtists.count - 1 {
+//                        c = self.allArtists.count
+//                    }
+//
+//                }
             }
             return cell
         }
     }
+//    func downloadNext10(indexpath:IndexPath){
+//
+//    }
     
 }
 

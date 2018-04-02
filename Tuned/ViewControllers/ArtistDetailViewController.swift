@@ -16,6 +16,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var eventsContainer: UIView!
     @IBOutlet weak var onTour: UILabel!
+    
     var currentArtist:Artist!
     @IBOutlet weak var c2: UIView! // bioContainer
     @IBOutlet weak var c1: UIView! // tracksContainer
@@ -26,6 +27,8 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
     @IBOutlet weak var instagramButton: UIButton!
     @IBOutlet weak var twitterButton: UIButton!
     @IBOutlet weak var facebookButton: UIButton!
+    @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
+    var activeContainer:Int = 1
     
     @IBAction func youtubeButtonClicked(_ sender: Any) {
         
@@ -130,6 +133,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
     }
     override func viewDidLoad() {
         super.viewDidLoad()
+        disableButtons()
         tracksController = self.storyboard!.instantiateViewController(withIdentifier: "tracksContainer") as! TracksContainer
         eventsController = self.storyboard?.instantiateViewController(withIdentifier: "eventsContainer") as! EventsContainer
         scrollView.bounces = false
@@ -167,6 +171,10 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
                         self.allSocialHandles = result
                         
                     }
+                    DispatchQueue.main.async {
+                        self.enableButtons()
+                    }
+                    
                 }
             })
             
@@ -174,9 +182,17 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
         self.setupContaiers()
     }
     @objc func imageFit(){
-        //toDO if position is at 0, scroll to 2nd stack
+        
         if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight){
             imageView.contentMode = UIViewContentMode.scaleAspectFit
+            if activeContainer == 1 {
+                activateBorder(button: bioButton)
+            }else if activeContainer == 2 {
+                activateBorder(button: tracksButton)
+            }else {
+                activateBorder(button: eventsButton)
+            }
+            
         }else if(UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown){
             imageView.contentMode = UIViewContentMode.scaleAspectFill
         }
@@ -192,7 +208,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
         
         if let count = (button.layer.sublayers?.count) {
             if count > 1{
-                return
+                // return
             }
         }
         let appearAnimation = CABasicAnimation(keyPath: "opacity")
@@ -208,8 +224,8 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
     }
     
     @IBAction func bioButtonClicked(_ sender: Any) {
+        activeContainer = 1
         self.activateBorder(button:self.bioButton)
-        
         UIView.animate(
             withDuration: 0.2,
             delay: 0.0,
@@ -221,6 +237,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
         }
     }
     @IBAction func topTracksButtonClicked(_ sender: Any) {
+        activeContainer = 2
         self.activateBorder(button:self.tracksButton)
         UIView.animate(
             withDuration: 0.2,
@@ -238,6 +255,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
                         DispatchQueue.main.async {
                             self.tracksController.allTracks = allTracks
                             self.c1.addSubview(self.tracksController.view)
+                            // self.tracksController.loadingIndicator.stopAnimating()
                         }
                     }
                 })
@@ -248,6 +266,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
         }
     }
     @IBAction func eventsButtonClicked(_ sender: Any) {
+        activeContainer = 3
         self.activateBorder(button:self.eventsButton)
         UIView.animate(
             withDuration: 0.2,
@@ -265,7 +284,9 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
                         DispatchQueue.main.async {
                             self.eventsController.allEvents = some
                             self.eventsContainer.addSubview(self.eventsController.view)
-                            self.eventsController.tableView.reloadData()    
+                            self.eventsController.tableView.reloadData()
+                            self.eventsController.loadingIndicator.stopAnimating()
+                            
                         }
                     }
                 })
@@ -286,6 +307,36 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
     }
 }
 extension ArtistDetailViewController{
+    func enableButtons(){
+        if allSocialHandles["facebook"] != nil {
+            facebookButton.isEnabled = true
+        }
+        if allSocialHandles["twitter"] != nil {
+            twitterButton.isEnabled = true
+        }
+        if allSocialHandles["instagram"] != nil {
+            instagramButton.isEnabled = true
+        }
+        if allSocialHandles["youtube"] != nil {
+            youtubeButton.isEnabled = true
+        }
+        
+        bioButton.isEnabled = true
+        tracksButton.isEnabled = true
+        eventsButton.isEnabled = true
+        loadingIndicator.stopAnimating()
+    }
+    
+    func disableButtons(){
+        facebookButton.isEnabled = false
+        twitterButton.isEnabled = false
+        instagramButton.isEnabled = false
+        youtubeButton.isEnabled = false
+        
+        bioButton.isEnabled = false
+        tracksButton.isEnabled = false
+        eventsButton.isEnabled = false
+    }
     func setupContaiers(){
         self.eventsContainer.alpha = 0
         self.c2.alpha = 1

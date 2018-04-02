@@ -14,4 +14,10 @@ class ArtistListCell:UICollectionViewCell{
     @IBOutlet weak var artistName: UILabel!
     //ADD Loading indicator
     @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        loadingIndicator.startAnimating()
+        artistImage.image = #imageLiteral(resourceName: "placeholder")
+        artistName.text = ""
+    }
 }

@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class MainViewController: UIViewController,UICollectionViewDelegate,UICollectionViewDataSource {
+class MainViewController: UIViewController,UICollectionViewDelegate,UICollectionViewDataSource,NSFetchedResultsControllerDelegate {
     var allArtists = [String:String]()
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     @IBOutlet weak var collectionView: UICollectionView!
@@ -19,25 +19,47 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     var dataController:DataController!
     let imageCache = NSCache<AnyObject, AnyObject>()
     var imageURLString : String?
+    var showSavedBool: Bool = false
+    var fetchedResultsController:NSFetchedResultsController<Artists>!
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        if collectionView != nil {
-             collectionView.reloadItems(at: collectionView.indexPathsForVisibleItems)
+    @IBAction func showSavedButtonTapped(_ sender: Any) {
+        if showSavedBool {
+            fetchAllArtists()
+            showSavedBool = false
+            showSavedButton.title = "Show Saved"
+        }else{
+            showSavedBool = true
+            showSavedButton.title = "Show Latest"
         }
+        collectionView.reloadData()
+    }
+    
+    @IBOutlet weak var showSavedButton: UIBarButtonItem!
+    fileprivate func fetchAllArtists() {
         let fetchRequest:NSFetchRequest<Artists> = Artists.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        try? fetchedResultsController.performFetch()
         
-        if let result = try? dataController.viewContext.fetch(fetchRequest){
-            print(result.count)
+    }
+    override func viewDidDisappear(_ animated: Bool) {
+        fetchedResultsController = nil
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        fetchAllArtists()
+        if !showSavedBool{
+            if collectionView != nil {
+                collectionView.reloadItems(at: collectionView.indexPathsForVisibleItems)
+            }}else{
+            collectionView.reloadData()
         }
+        
+        
         self.setupFlowLayout()
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        //Coredata Code
-        
         
         NotificationCenter.default.addObserver(self, selector: #selector(setupFlowLayout), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
         
@@ -80,24 +102,33 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
 extension MainViewController{
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return allArtists.count
+        if showSavedBool{
+            return (fetchedResultsController.fetchedObjects?.count)!
+        }else{
+            return allArtists.count
+            
+        }
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Artist", for: indexPath) as! ArtistListCell
-        // cell.clearsContextBeforeDrawing = true
-        let key = Array(allArtists.keys)[indexPath.row]
-        let array = allArtists[key]
-        
-        if let imageFromCache = imageCache.object(forKey: array as AnyObject) as? UIImage {
-            cell.isUserInteractionEnabled = true
-            imageData = UIImageJPEGRepresentation(imageFromCache, 1)
-            artistName = key as! String
+        if showSavedBool{
+            var currentArtist = fetchedResultsController.fetchedObjects![indexPath.row]
+            imageData = currentArtist.image
+            artistName = currentArtist.name
             performSegue(withIdentifier: "artistDetail", sender: cell)
         }else{
-            cell.isUserInteractionEnabled = true
+            let key = Array(allArtists.keys)[indexPath.row]
+            let array = allArtists[key]
+            
+            if let imageFromCache = imageCache.object(forKey: array as AnyObject) as? UIImage {
+                cell.isUserInteractionEnabled = true
+                imageData = UIImageJPEGRepresentation(imageFromCache, 1)
+                artistName = key as! String
+                performSegue(withIdentifier: "artistDetail", sender: cell)
+            }else{
+                cell.isUserInteractionEnabled = true
+            }
         }
-        
     }
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         //Can implement to download a chunk of images
@@ -106,73 +137,54 @@ extension MainViewController{
         
     }
     
-    
-    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Artist", for: indexPath) as! ArtistListCell
-        cell.loadingIndicator.startAnimating()
-        cell.prepareForReuse()
-        let key = Array(allArtists.keys)[indexPath.row]
-        let array = allArtists[key]
-        imageURLString = array
-        cell.artistName.text = key as String
-        if let imageFromCache = imageCache.object(forKey: array as AnyObject) as? UIImage {
-            cell.artistImage.image = imageFromCache
-            cell.loadingIndicator.stopAnimating()
-            return cell
-        }
-        else{
-            DispatchQueue.global(qos: .userInitiated).async {
-                imageDownload(imageUrl: array as! String, completionHandler: { (success, data) in
-                    if success{
-                        if let imgaeToCache = UIImage(data: data){
-                            DispatchQueue.main.async {
-                                if self.imageURLString == array {
-                                    cell.artistImage.image = imgaeToCache
+        if showSavedBool{
+            do {
+                cell.artistImage.image = UIImage(data:fetchedResultsController.fetchedObjects![indexPath.row].image!)
+                cell.artistName.text = fetchedResultsController.fetchedObjects![indexPath.row].name
+            }catch{
+                fatalError(error.localizedDescription)
+            }
+             cell.loadingIndicator.stopAnimating()
+        }else{
+
+            cell.loadingIndicator.startAnimating()
+            cell.prepareForReuse()
+            let key = Array(allArtists.keys)[indexPath.row]
+            let array = allArtists[key]
+            imageURLString = array
+            cell.artistName.text = key as String
+            if let imageFromCache = imageCache.object(forKey: array as AnyObject) as? UIImage {
+                cell.artistImage.image = imageFromCache
+                cell.loadingIndicator.stopAnimating()
+                return cell
+            }
+            else{
+                DispatchQueue.global(qos: .userInitiated).async {
+                    imageDownload(imageUrl: array as! String, completionHandler: { (success, data) in
+                        if success{
+                            if let imgaeToCache = UIImage(data: data){
+                                DispatchQueue.main.async {
+                                    if self.imageURLString == array {
+                                        cell.artistImage.image = imgaeToCache
+                                    }
+                                    cell.loadingIndicator.stopAnimating()
+                                    self.imageCache.setObject(imgaeToCache, forKey: array as AnyObject)
+                                    collectionView.reloadItems(at: [indexPath])
                                 }
-                                cell.loadingIndicator.stopAnimating()
-                                self.imageCache.setObject(imgaeToCache, forKey: array as AnyObject)
-                                collectionView.reloadItems(at: [indexPath])
+                                
                             }
-                            
                         }
-                    }
+                        
+                    })
                     
-                })
-                
+                }
             }
         }
-        
-        //cell.artistImage.image = CustomImage().imagef
-        //cell.artistImage.image = UIImageView.imagefr
-        //cell.artistImage.image =
-        //        if allImageData[indexPath] != nil {
-        //            cell.artistImage.image = UIImage(data:allImageData[indexPath]!)
-        //            cell.loadingIndicator.stopAnimating()
-        //            cell.artistName.text = key as String
-        //            return cell
-        //        }else{
-        //            cell.artistImage.image = #imageLiteral(resourceName: "placeholder")
-        //            cell.artistName.text = key as String
-        //            collectionView.reloadItems(at: [indexPath])
-        //            DispatchQueue.global(qos: .userInitiated).async {
-        //
-        //                imageDownload(imageUrl: array as! String, completionHandler: { (success, data) in
-        //                    if success{
-        //                        self.allImageData[indexPath] = data
-        //                        DispatchQueue.main.async {
-        //                            cell.artistImage.image = UIImage(data:self.allImageData[indexPath]!)
-        //                            cell.loadingIndicator.stopAnimating()
-        //                            cell.artistName.text = key as String
-        //                            collectionView.reloadItems(at: [indexPath])
-        //                        }
-        //                    }
-        //                })
-        //            }
-        //            return cell
-        //        }
         return cell
     }
+    
 }
 
 extension MainViewController{

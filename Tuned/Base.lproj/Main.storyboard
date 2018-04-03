@@ -95,12 +95,17 @@
                     </view>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="Tuned" id="QYD-Fe-oub">
-                        <barButtonItem key="rightBarButtonItem" title="Show Saved" id="Ynt-2E-1RF"/>
+                        <barButtonItem key="rightBarButtonItem" title="Show Saved" id="Ynt-2E-1RF">
+                            <connections>
+                                <action selector="showSavedButtonTapped:" destination="BYZ-38-t0r" id="k9L-D9-cxK"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="collectionView" destination="gwX-Lp-adM" id="lgj-Ui-cHy"/>
                         <outlet property="flowLayout" destination="1GQ-sc-BVK" id="RXg-Oe-n30"/>
+                        <outlet property="showSavedButton" destination="Ynt-2E-1RF" id="WNE-of-eO8"/>
                         <segue destination="HSP-97-CZg" kind="show" identifier="artistDetail" id="Zxz-Dj-2UB"/>
                     </connections>
                 </viewController>

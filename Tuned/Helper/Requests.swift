@@ -163,8 +163,9 @@ func getSocialHandles(mbid:String,completionHandler:@escaping(_ success:Bool,_ r
     let url = "https://musicbrainz.org/ws/2/artist/\(mbid)?inc=url-rels&fmt=json"
     let session = URLSession.shared
     let request = URLRequest(url:URL(string:url)!)
-    print(url)
+
     let task = session.dataTask(with: request) { (data, response, error) in
+        
         guard error == nil else{
             return
         }
@@ -194,11 +195,14 @@ func getSocialHandles(mbid:String,completionHandler:@escaping(_ success:Bool,_ r
                                 result["facebook"] = urlString as AnyObject
                             }
                         }
-                        
+                      
                     }
+                    
                 }
             }
-            completionHandler(true,result)
+             completionHandler(true,result)
+        }else{
+            completionHandler(false,result)
         }
     }
     task.resume()

@@ -8,7 +8,7 @@
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="ontour" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="events" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Events" inverseName="artistEvents" inverseEntity="Events" syncable="YES"/>
-        <relationship name="socials" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Socials" inverseName="socialsArtist" inverseEntity="Socials" syncable="YES"/>
+        <relationship name="socials" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Socials" inverseName="socialsArtist" inverseEntity="Socials" syncable="YES"/>
         <relationship name="tracks" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Tracks" inverseName="artist" inverseEntity="Tracks" syncable="YES"/>
     </entity>
     <entity name="Events" representedClassName="Events" syncable="YES" codeGenerationType="class">

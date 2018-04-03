@@ -33,6 +33,7 @@
 		40178E35206A7BB4002A9B0E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		40178E3C206A808B002A9B0E /* Requests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Requests.swift; sourceTree = "<group>"; };
 		40178E3F206AD8C6002A9B0E /* Artist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Artist.swift; sourceTree = "<group>"; };
+		402D10AD2073F3A500749FD2 /* Artists 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Artists 3.xcdatamodel"; sourceTree = "<group>"; };
 		40507EC8206B302B00290E34 /* ArtistListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistListCell.swift; sourceTree = "<group>"; };
 		4069304F2072511E00FB839E /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 		4075084D206B507A005F1336 /* ArtistDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistDetailViewController.swift; sourceTree = "<group>"; };
@@ -404,10 +405,11 @@
 		40F0E80520739CCB00FEC742 /* Artists.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				402D10AD2073F3A500749FD2 /* Artists 3.xcdatamodel */,
 				40F0E80820739FA500FEC742 /* Artists 2.xcdatamodel */,
 				40F0E80620739CCB00FEC742 /* Artists.xcdatamodel */,
 			);
-			currentVersion = 40F0E80820739FA500FEC742 /* Artists 2.xcdatamodel */;
+			currentVersion = 402D10AD2073F3A500749FD2 /* Artists 3.xcdatamodel */;
 			path = Artists.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

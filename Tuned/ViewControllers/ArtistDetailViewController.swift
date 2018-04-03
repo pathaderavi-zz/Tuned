@@ -30,17 +30,22 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     @IBOutlet weak var facebookButton: UIButton!
     @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
     var activeContainer:Int = 1
+    var mbidStatus:Bool = false
     
     //CoreData variables
     var artist:Artists!
     var events:Events!
+    var tracks:Tracks!
+    var socials:Socials!
     var fetchedResultController:NSFetchedResultsController<Artists>!
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+    var fetchTracks = [String]()
+    var fetchEvents = [String:Bool]()
+
+    override func viewDidDisappear(_ animated: Bool) {
         fetchedResultController = nil
+        super.viewDidDisappear(animated)
     }
     fileprivate func fetchArtist() {
-     
         let fetchRequest:NSFetchRequest<Artists> = Artists.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         fetchRequest.predicate = NSPredicate(format:"(name == %@)",artistName)
@@ -57,8 +62,6 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
         }catch{
             fatalError("Cannot Fetch")
         }
-
-       
     }
     
     override func viewDidLoad() {
@@ -85,9 +88,8 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
         DispatchQueue.global(qos:.userInitiated).async {
             
             artistDataDownload(artist: updatedName, completionHadler: { (success,artist) in
-                
-                
                 self.currentArtist = artist
+                self.mbidStatus = (artist.mbid == "")
                 DispatchQueue.main.async {
                     let controller = self.storyboard!.instantiateViewController(withIdentifier: "bioContainer") as! BioContainer
                     if artist.onTour == "0"{
@@ -116,7 +118,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
         self.setupContaiers()
     }
     @IBAction func youtubeButtonClicked(_ sender: Any) {
-      
+        
         if let youtubeUrl = allSocialHandles["youtube"] as? String{
             var appUrl:String
             if (youtubeUrl.range(of: "https") != nil){
@@ -216,7 +218,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
         let verticalIndicator = scrollView.subviews.last as? UIImageView
         verticalIndicator?.backgroundColor = UIColor.gray
     }
-
+    
     @objc func imageFit(){
         
         if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight){
@@ -290,6 +292,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                     if success {
                         DispatchQueue.main.async {
                             self.tracksController.allTracks = allTracks
+                            self.fetchTracks = allTracks
                             self.c1.addSubview(self.tracksController.view)
                             // self.tracksController.loadingIndicator.stopAnimating()
                         }
@@ -319,6 +322,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                     if success{
                         DispatchQueue.main.async {
                             self.eventsController.allEvents = some
+                            self.fetchEvents = some
                             self.eventsContainer.addSubview(self.eventsController.view)
                             self.eventsController.tableView.reloadData()
                             self.eventsController.loadingIndicator.stopAnimating()
@@ -351,6 +355,62 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
         }
         artist.ontour = currentArtist.onTour
         artist.creationDate = Date() // Can be done with awakefrominsert
+        
+        if fetchTracks.count == 0 || fetchTracks.count == 0{
+            DispatchQueue.global(qos: .userInitiated).async {
+                getTopTracks(artistName: self.artistName, completionHandler: { (success, topTracks) in
+                    if success{
+                        DispatchQueue.main.async {
+                            
+                            for track in topTracks{
+                                self.tracks = Tracks(context:self.dataController.viewContext)
+                                self.tracks.name = track
+                                self.tracks.artist = self.artist
+                                try? self.dataController.viewContext.save()
+                            }
+                        
+                        }
+                        if self.currentArtist.mbid != "" {
+                            getLatestEvents(artistMbid: self.currentArtist.mbid, completionHandler: { (success, events) in
+                                DispatchQueue.main.async {
+                                
+                                    for event in events{
+                                        self.events = Events(context:self.dataController.viewContext)
+                                        self.events.name = event.key
+                                        self.events.artistEvents = self.artist
+                                        try? self.dataController.viewContext.save()
+                                    }
+                                   
+                                }
+                                getSocialHandles(mbid: self.currentArtist.mbid, completionHandler: { (success, handles) in
+                                    self.socials = Socials(context:self.dataController.viewContext)
+                                    self.socials.socialsArtist = self.artist
+                                    if let fb = handles["facebook"] as? String {
+                                        self.socials.facebook = fb
+                                    }
+                                    if let twitter = handles["twitter"] as? String {
+                                        self.socials.twitter = twitter
+                                    }
+                                    if let ig = handles["instagram"] as? String {
+                                        self.socials.instagram = ig
+                                    }
+                                    if let youtube = handles["youtube"] as? String {
+                                        self.socials.yotutube = youtube
+                                    }
+                                    do {
+                                        try self.dataController.viewContext.save()
+                                    }catch{
+                                        fatalError(error.localizedDescription)
+                                    }
+                                })
+                            })
+                        }
+              
+                    }
+                })
+            }
+        }
+        
         try? dataController.viewContext.save()
         fetchArtist()
         print(fetchedResultController.fetchedObjects?.count)
@@ -379,22 +439,23 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
 }
 extension ArtistDetailViewController{
     func enableButtons(){
-        if allSocialHandles["facebook"] != nil {
-            facebookButton.isEnabled = true
+        if mbidStatus == false{
+            if allSocialHandles["facebook"] != nil {
+                facebookButton.isEnabled = true
+            }
+            if allSocialHandles["twitter"] != nil {
+                twitterButton.isEnabled = true
+            }
+            if allSocialHandles["instagram"] != nil {
+                instagramButton.isEnabled = true
+            }
+            if allSocialHandles["youtube"] != nil {
+                youtubeButton.isEnabled = true
+            }
         }
-        if allSocialHandles["twitter"] != nil {
-            twitterButton.isEnabled = true
-        }
-        if allSocialHandles["instagram"] != nil {
-            instagramButton.isEnabled = true
-        }
-        if allSocialHandles["youtube"] != nil {
-            youtubeButton.isEnabled = true
-        }
-        
         bioButton.isEnabled = true
         tracksButton.isEnabled = true
-        eventsButton.isEnabled = true
+         eventsButton.isEnabled = false
         loadingIndicator.stopAnimating()
     }
     

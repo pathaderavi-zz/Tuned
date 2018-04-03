@@ -32,7 +32,6 @@ func getTopArtists(completionHandler:@escaping(_ allImages:[String:String])->Voi
                         for b1 in b {
                             if let medium = b1["size"] as? String {
                                 if medium == "large"{
-                                    //print(b1["#text"] as Any)
                                     if let name = a["name"] as! String? {
                                         if let imageUrl = b1["#text"] as! String?{
                                             all[name as String] = imageUrl as String
@@ -58,7 +57,7 @@ func imageDownload(imageUrl:String,completionHandler:@escaping(_ success:Bool,_ 
     
     let task = session.dataTask(with: request as URLRequest) { (data, response, error) in
         if data == nil {
-            completionHandler(false,data!)
+            //completionHandler(false,error as! Data)
             return
         }else{
             completionHandler(true,data!)

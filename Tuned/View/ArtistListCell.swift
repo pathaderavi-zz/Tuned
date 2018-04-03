@@ -19,5 +19,6 @@ class ArtistListCell:UICollectionViewCell{
         loadingIndicator.startAnimating()
         artistImage.image = #imageLiteral(resourceName: "placeholder")
         artistName.text = ""
+        self.reloadInputViews()
     }
 }

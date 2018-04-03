@@ -16,7 +16,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var eventsContainer: UIView!
     @IBOutlet weak var onTour: UILabel!
-    
+    var dataController:DataController!
     var currentArtist:Artist!
     @IBOutlet weak var c2: UIView! // bioContainer
     @IBOutlet weak var c1: UIView! // tracksContainer

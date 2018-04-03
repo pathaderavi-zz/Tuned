@@ -23,7 +23,9 @@ class Artist{
     
     init(dictionary:[String:AnyObject]) {
         name = dictionary["name"] as! String
-        mbid = dictionary["mbid"] as! String
+        if let mb = dictionary["mbid"] as? String{
+            mbid = mb
+        }
         onTour = dictionary["ontour"] as! String
         lastFmUrl = dictionary["url"] as! String
         if let set2 = dictionary["bio"]{

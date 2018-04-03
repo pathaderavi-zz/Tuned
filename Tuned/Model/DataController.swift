@@ -9,19 +9,21 @@
 import Foundation
 import CoreData
 
-class DataController {
-    let persistentContainer:NSPersistentContainer
+class DataController{
+    let persistentContainer: NSPersistentContainer
+    
     var viewContext:NSManagedObjectContext{
         return persistentContainer.viewContext
     }
-    init(modelName:String) {
+    
+    init(modelName:String){
         persistentContainer = NSPersistentContainer(name:modelName)
     }
     
     func load(completion:(()-> Void)? = nil){
         persistentContainer.loadPersistentStores { (storeDescription, error) in
-            guard error == nil else {
-                fatalError("Cannot load")
+            guard error == nil else{
+                fatalError(error!.localizedDescription)
             }
             completion?()
         }

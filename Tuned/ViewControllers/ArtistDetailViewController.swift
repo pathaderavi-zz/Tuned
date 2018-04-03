@@ -8,8 +8,9 @@
 
 import Foundation
 import UIKit
+import CoreData
 
-class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
+class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetchedResultsControllerDelegate{
     var artistName:String!
     var imageData:Data!
     @IBOutlet weak var scrollView: UIScrollView!
@@ -30,8 +31,92 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
     @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
     var activeContainer:Int = 1
     
-    @IBAction func youtubeButtonClicked(_ sender: Any) {
+    //CoreData variables
+    var artist:Artists!
+    var events:Events!
+    var fetchedResultController:NSFetchedResultsController<Artists>!
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        fetchedResultController = nil
+    }
+    fileprivate func fetchArtist() {
+     
+        let fetchRequest:NSFetchRequest<Artists> = Artists.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        fetchRequest.predicate = NSPredicate(format:"(name == %@)",artistName)
+        if let result = try? dataController.viewContext.fetch(fetchRequest){
+            print(result.count)
+        }
+        fetchedResultController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultController.delegate = self
+        do {
+            try fetchedResultController.performFetch()
+            if fetchedResultController.fetchedObjects?.count != 0 {
+                artist = fetchedResultController.fetchedObjects![0]
+            }
+        }catch{
+            fatalError("Cannot Fetch")
+        }
+
+       
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        fetchArtist()
+        setupFavButton()
+        disableButtons()
+        tracksController = self.storyboard!.instantiateViewController(withIdentifier: "tracksContainer") as! TracksContainer
+        eventsController = self.storyboard?.instantiateViewController(withIdentifier: "eventsContainer") as! EventsContainer
+        scrollView.bounces = false
+        scrollView.delegate = self
+        self.navigationItem.title = artistName
+        self.onTour.isHidden = true
+        onTour.layer.cornerRadius = onTour.frame.width/2
+        onTour.layer.masksToBounds = true
         
+        NotificationCenter.default.addObserver(self, selector: #selector(imageFit), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+        
+        let updatedName = artistName.replacingOccurrences(of: " " , with: "+")
+        imageView.image = UIImage(data:imageData)
+        imageFit()
+        activateBorder(button: bioButton)
+        //yelloFav.isHidden = true
+        DispatchQueue.global(qos:.userInitiated).async {
+            
+            artistDataDownload(artist: updatedName, completionHadler: { (success,artist) in
+                
+                
+                self.currentArtist = artist
+                DispatchQueue.main.async {
+                    let controller = self.storyboard!.instantiateViewController(withIdentifier: "bioContainer") as! BioContainer
+                    if artist.onTour == "0"{
+                        self.onTour.isHidden = true
+                    }else{
+                        self.onTour.isHidden = false
+                    }
+                    controller.bioLabelText = artist.bioContent
+                    controller.lastFmUrl = NSMutableAttributedString(string:artist.bioContent)
+                    self.c2.addSubview(controller.view)
+                }
+                
+                getSocialHandles(mbid: artist.mbid) { (success, result) in
+                    if success{
+                        self.allSocialHandles = result
+                        
+                    }
+                    DispatchQueue.main.async {
+                        self.enableButtons()
+                    }
+                    
+                }
+            })
+            
+        }
+        self.setupContaiers()
+    }
+    @IBAction func youtubeButtonClicked(_ sender: Any) {
+      
         if let youtubeUrl = allSocialHandles["youtube"] as? String{
             var appUrl:String
             if (youtubeUrl.range(of: "https") != nil){
@@ -131,56 +216,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
         let verticalIndicator = scrollView.subviews.last as? UIImageView
         verticalIndicator?.backgroundColor = UIColor.gray
     }
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        disableButtons()
-        tracksController = self.storyboard!.instantiateViewController(withIdentifier: "tracksContainer") as! TracksContainer
-        eventsController = self.storyboard?.instantiateViewController(withIdentifier: "eventsContainer") as! EventsContainer
-        scrollView.bounces = false
-        self.onTour.isHidden = true
-        self.navigationItem.title = artistName
-        onTour.layer.cornerRadius = onTour.frame.width/2
-        onTour.layer.masksToBounds = true
-        scrollView.delegate = self
-        NotificationCenter.default.addObserver(self, selector: #selector(imageFit), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
-        let updatedName = artistName.replacingOccurrences(of: " " , with: "+")
-        imageView.image = UIImage(data:imageData)
-        imageFit()
-        activateBorder(button: bioButton)
-        yelloFav.isHidden = true
-        DispatchQueue.global(qos:.userInitiated).async {
-            
-            artistDataDownload(artist: updatedName, completionHadler: { (success,artist) in
-                
-                
-                self.currentArtist = artist
-                DispatchQueue.main.async {
-                    let controller = self.storyboard!.instantiateViewController(withIdentifier: "bioContainer") as! BioContainer
-                    if artist.onTour == "0"{
-                        self.onTour.isHidden = true
-                    }else{
-                        self.onTour.isHidden = false
-                    }
-                    controller.bioLabelText = artist.bioContent
-                    controller.lastFmUrl = NSMutableAttributedString(string:artist.bioContent)
-                    self.c2.addSubview(controller.view)
-                }
-                
-                getSocialHandles(mbid: artist.mbid) { (success, result) in
-                    if success{
-                        self.allSocialHandles = result
-                        
-                    }
-                    DispatchQueue.main.async {
-                        self.enableButtons()
-                    }
-                    
-                }
-            })
-            
-        }
-        self.setupContaiers()
-    }
+
     @objc func imageFit(){
         
         if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight){
@@ -294,15 +330,50 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate{
         }
     }
     
+    func setupFavButton(){
+        if fetchedResultController.fetchedObjects?.count == 0 {
+            yelloFav.isHidden = true
+            favButton.isHidden = false
+        }else{
+            yelloFav.isHidden = false
+            favButton.isHidden = true
+        }
+    }
     
+    fileprivate func saveArtist() {
+        //Save Changes
+        artist = Artists(context:dataController.viewContext)
+        artist.name = artistName
+        artist.bio = currentArtist.bioContent
+        artist.image = imageData
+        if let mb = currentArtist?.mbid {
+            artist.mbid = mb
+        }
+        artist.ontour = currentArtist.onTour
+        artist.creationDate = Date() // Can be done with awakefrominsert
+        try? dataController.viewContext.save()
+        fetchArtist()
+        print(fetchedResultController.fetchedObjects?.count)
+        
+        favButton.isHidden = true
+        yelloFav.isHidden = false
+    }
+    
+    fileprivate func extractedFunc() {
+        dataController.viewContext.delete(artist)
+        try? dataController.viewContext.save()
+        fetchArtist()
+        print(fetchedResultController.fetchedObjects?.count)
+        favButton.isHidden = false
+        yelloFav.isHidden = true
+    }
     
     @IBAction func favoriteButton(_ sender: Any) {
         if yelloFav.isHidden{
-            favButton.isHidden = true
-            yelloFav.isHidden = false
+            saveArtist()
         }else{
-            favButton.isHidden = false
-            yelloFav.isHidden = true
+            extractedFunc()
+            //Delete Changes
         }
     }
 }

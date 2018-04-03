@@ -15,12 +15,12 @@
 		40178E3D206A808B002A9B0E /* Requests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40178E3C206A808B002A9B0E /* Requests.swift */; };
 		40178E40206AD8C6002A9B0E /* Artist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40178E3F206AD8C6002A9B0E /* Artist.swift */; };
 		40507EC9206B302B00290E34 /* ArtistListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40507EC8206B302B00290E34 /* ArtistListCell.swift */; };
-		4069304E207235CD00FB839E /* Artists.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4069304C207235CD00FB839E /* Artists.xcdatamodeld */; };
 		406930502072511E00FB839E /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4069304F2072511E00FB839E /* DataController.swift */; };
 		4075084E206B507A005F1336 /* ArtistDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4075084D206B507A005F1336 /* ArtistDetailViewController.swift */; };
 		40750850206D19D0005F1336 /* BioContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4075084F206D19D0005F1336 /* BioContainer.swift */; };
 		40750852206D1D3A005F1336 /* TracksContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40750851206D1D3A005F1336 /* TracksContainer.swift */; };
 		40750854206D1D66005F1336 /* EventsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40750853206D1D66005F1336 /* EventsContainer.swift */; };
+		40F0E80720739CCB00FEC742 /* Artists.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 40F0E80520739CCB00FEC742 /* Artists.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,12 +34,13 @@
 		40178E3C206A808B002A9B0E /* Requests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Requests.swift; sourceTree = "<group>"; };
 		40178E3F206AD8C6002A9B0E /* Artist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Artist.swift; sourceTree = "<group>"; };
 		40507EC8206B302B00290E34 /* ArtistListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistListCell.swift; sourceTree = "<group>"; };
-		4069304D207235CD00FB839E /* Artists.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Artists.xcdatamodel; sourceTree = "<group>"; };
 		4069304F2072511E00FB839E /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 		4075084D206B507A005F1336 /* ArtistDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistDetailViewController.swift; sourceTree = "<group>"; };
 		4075084F206D19D0005F1336 /* BioContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BioContainer.swift; sourceTree = "<group>"; };
 		40750851206D1D3A005F1336 /* TracksContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracksContainer.swift; sourceTree = "<group>"; };
 		40750853206D1D66005F1336 /* EventsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsContainer.swift; sourceTree = "<group>"; };
+		40F0E80620739CCB00FEC742 /* Artists.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Artists.xcdatamodel; sourceTree = "<group>"; };
+		40F0E80820739FA500FEC742 /* Artists 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Artists 2.xcdatamodel"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,7 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				40178E3F206AD8C6002A9B0E /* Artist.swift */,
-				4069304C207235CD00FB839E /* Artists.xcdatamodeld */,
+				40F0E80520739CCB00FEC742 /* Artists.xcdatamodeld */,
 				4069304F2072511E00FB839E /* DataController.swift */,
 			);
 			path = Model;
@@ -203,8 +204,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4069304E207235CD00FB839E /* Artists.xcdatamodeld in Sources */,
 				40178E3D206A808B002A9B0E /* Requests.swift in Sources */,
+				40F0E80720739CCB00FEC742 /* Artists.xcdatamodeld in Sources */,
 				40750850206D19D0005F1336 /* BioContainer.swift in Sources */,
 				40178E2C206A7BB4002A9B0E /* MainViewController.swift in Sources */,
 				40750852206D1D3A005F1336 /* TracksContainer.swift in Sources */,
@@ -400,12 +401,13 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		4069304C207235CD00FB839E /* Artists.xcdatamodeld */ = {
+		40F0E80520739CCB00FEC742 /* Artists.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				4069304D207235CD00FB839E /* Artists.xcdatamodel */,
+				40F0E80820739FA500FEC742 /* Artists 2.xcdatamodel */,
+				40F0E80620739CCB00FEC742 /* Artists.xcdatamodel */,
 			);
-			currentVersion = 4069304D207235CD00FB839E /* Artists.xcdatamodel */;
+			currentVersion = 40F0E80820739FA500FEC742 /* Artists 2.xcdatamodel */;
 			path = Artists.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

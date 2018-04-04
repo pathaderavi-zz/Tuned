@@ -8,7 +8,7 @@
 
 import Foundation
 
-func getTopArtists(completionHandler:@escaping(_ allImages:[String:String])->Void) {
+func getTopArtists(completionHandler:@escaping(_ success:Bool, _ allImages:[String:String])->Void) {
     var topArtistUrl = "https://ws.audioscrobbler.com/2.0/?method=chart.gettopartists&api_key=63bc85712ced4b9c92bed61d2e60441e&format=json"
     var all = [String:String]()
     let session = URLSession.shared
@@ -16,7 +16,9 @@ func getTopArtists(completionHandler:@escaping(_ allImages:[String:String])->Voi
     
     let task = session.dataTask(with: request) { (data, response, error) in
         guard error == nil else{
-            print(error?.localizedDescription)
+           // if (error?.localizedDescription as! String) == "The Internet connection appears to be offline."{
+                completionHandler(false,all)
+            //}
             return
         }
         let parsedResult : [String:AnyObject]!
@@ -45,7 +47,7 @@ func getTopArtists(completionHandler:@escaping(_ allImages:[String:String])->Voi
                 }
             }
         }
-        completionHandler(all)
+        completionHandler(true,all)
     }
     task.resume()
 }
@@ -57,7 +59,11 @@ func imageDownload(imageUrl:String,completionHandler:@escaping(_ success:Bool,_ 
     
     let task = session.dataTask(with: request as URLRequest) { (data, response, error) in
         if data == nil {
-            //completionHandler(false,error as! Data)
+            if (error?.localizedDescription as! String) == "The Internet connection appears to be offline."{
+                print("error image")
+                completionHandler(false,Data())
+                }
+    
             return
         }else{
             completionHandler(true,data!)
@@ -74,6 +80,9 @@ func artistDataDownload(artist:String,completionHadler:@escaping(_ success:Bool,
     
     let task = session.dataTask(with: request) { (data, response, error) in
         if error != nil {
+            if (error?.localizedDescription as! String) == "The Internet connection appears to be offline."{
+                completionHadler(false,Artist(dictionary: [:]))
+            }
             return
         }
         let parsedResult:[String:AnyObject]!
@@ -104,6 +113,10 @@ func getTopTracks(artistName:String,completionHandler:@escaping(_ success:Bool,_
     
     let task = sesssion.dataTask(with: request) { (data, response, error) in
         guard error == nil else {
+            if (error?.localizedDescription as! String) == "The Internet connection appears to be offline."{
+                completionHandler(false,result)
+                
+            }
             return
         }
         let parsedResult:[String:AnyObject]
@@ -133,6 +146,9 @@ func getLatestEvents(artistMbid:String,completionHandler:@escaping(_ success:Boo
     let session = URLSession.shared
     let task = session.dataTask(with: request) { (data, response, error) in
         guard error == nil else{
+            if (error?.localizedDescription as! String) == "The Internet connection appears to be offline."{
+                completionHandler(false,result)
+            }
             return
         }
         let parsedResult:[String:AnyObject]!
@@ -167,6 +183,9 @@ func getSocialHandles(mbid:String,completionHandler:@escaping(_ success:Bool,_ r
     let task = session.dataTask(with: request) { (data, response, error) in
         
         guard error == nil else{
+            if (error?.localizedDescription as! String) == "The Internet connection appears to be offline."{
+                completionHandler(false,result)
+            }
             return
         }
         let parsedResult:[String:AnyObject]!

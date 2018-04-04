@@ -22,22 +22,29 @@ class Artist{
     
     
     init(dictionary:[String:AnyObject]) {
-        name = dictionary["name"] as! String
+        if let n = dictionary["name"] as? String {
+               name = n
+        }
         if let mb = dictionary["mbid"] as? String{
             mbid = mb
         }
-        onTour = dictionary["ontour"] as! String
-        lastFmUrl = dictionary["url"] as! String
+        if let oT = dictionary["ontour"] as? String {
+            onTour = oT
+        }
+        if let fmUrl = dictionary["url"] as? String {
+            lastFmUrl = fmUrl
+        }
+        
         if let set2 = dictionary["bio"]{
             if let bioContent = set2["summary"] as? String{
                 self.bioContent = bioContent
             }
         }
-        print(name)
+
         if let imageSet = dictionary["image"] as? [[String:AnyObject]]{
      
             for i in imageSet{
-                if i["size"] as! String == "extralarge"{
+                if i["size"] as! String == "large"{
                     self.imageUrl = i["#text"] as! String
                 }
             }

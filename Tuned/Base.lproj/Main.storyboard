@@ -77,12 +77,24 @@
                                 <color key="barTintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <textInputTraits key="textInputTraits"/>
                             </searchBar>
+                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.0" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No Artists Saved" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IGr-Qc-3pG">
+                                <rect key="frame" x="56" y="321" width="263.5" height="44.5"/>
+                                <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="37"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="3TN-b1-wMO">
+                                <rect key="frame" x="169" y="325.5" width="37" height="37"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="gwX-Lp-adM" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="50" id="3ao-0z-y8o"/>
                             <constraint firstItem="RcG-Ec-xzN" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="86o-OD-6pd"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="gwX-Lp-adM" secondAttribute="trailing" id="FOB-nb-9FE"/>
+                            <constraint firstItem="3TN-b1-wMO" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="FPj-4A-u9i"/>
+                            <constraint firstItem="IGr-Qc-3pG" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="Ogn-FE-tn2"/>
                             <constraint firstItem="RcG-Ec-xzN" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="Y9a-xG-G37"/>
                             <constraint firstItem="gwX-Lp-adM" firstAttribute="top" secondItem="RcG-Ec-xzN" secondAttribute="bottom" id="ad9-DW-8sa"/>
                             <constraint firstItem="gwX-Lp-adM" firstAttribute="top" secondItem="RcG-Ec-xzN" secondAttribute="bottom" id="fJF-O3-Yak"/>
@@ -90,6 +102,8 @@
                             <constraint firstItem="RcG-Ec-xzN" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="lkh-7y-WUt"/>
                             <constraint firstItem="gwX-Lp-adM" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="n3L-Dy-TW7"/>
                             <constraint firstItem="RcG-Ec-xzN" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="qFy-AZ-6fd"/>
+                            <constraint firstItem="3TN-b1-wMO" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="s1K-k4-12a"/>
+                            <constraint firstItem="IGr-Qc-3pG" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="wSc-wI-rJ1"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
@@ -105,6 +119,8 @@
                     <connections>
                         <outlet property="collectionView" destination="gwX-Lp-adM" id="lgj-Ui-cHy"/>
                         <outlet property="flowLayout" destination="1GQ-sc-BVK" id="RXg-Oe-n30"/>
+                        <outlet property="mainLoadingIndicator" destination="3TN-b1-wMO" id="oaQ-2e-LHb"/>
+                        <outlet property="noArtistsSavedLabel" destination="IGr-Qc-3pG" id="6JA-rU-2Mk"/>
                         <outlet property="showSavedButton" destination="Ynt-2E-1RF" id="WNE-of-eO8"/>
                         <segue destination="HSP-97-CZg" kind="show" identifier="artistDetail" id="Zxz-Dj-2UB"/>
                     </connections>

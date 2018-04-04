@@ -88,6 +88,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
         DispatchQueue.global(qos:.userInitiated).async {
             
             artistDataDownload(artist: updatedName, completionHadler: { (success,artist) in
+                if success{
                 self.currentArtist = artist
                 self.mbidStatus = (artist.mbid == "")
                 DispatchQueue.main.async {
@@ -112,6 +113,8 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                     }
                     
                 }
+                }
+                
             })
             
         }
@@ -455,7 +458,7 @@ extension ArtistDetailViewController{
         }
         bioButton.isEnabled = true
         tracksButton.isEnabled = true
-         eventsButton.isEnabled = false
+        eventsButton.isEnabled = true
         loadingIndicator.stopAnimating()
     }
     

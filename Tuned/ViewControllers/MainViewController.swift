@@ -10,6 +10,8 @@ import UIKit
 import CoreData
 
 class MainViewController: UIViewController,UICollectionViewDelegate,UICollectionViewDataSource,NSFetchedResultsControllerDelegate {
+    @IBOutlet weak var mainLoadingIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var noArtistsSavedLabel: UILabel!
     var allArtists = [String:String]()
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     @IBOutlet weak var collectionView: UICollectionView!
@@ -24,10 +26,17 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     
     @IBAction func showSavedButtonTapped(_ sender: Any) {
         if showSavedBool {
-            fetchAllArtists()
+            if allArtists.count == 0 {
+                viewDidLoad()
+            }
+            noArtistsSavedLabel.alpha = 0
             showSavedBool = false
             showSavedButton.title = "Show Saved"
         }else{
+            fetchAllArtists()
+            if fetchedResultsController.fetchedObjects?.count == 0 {
+                noArtistsSavedLabel.alpha = 1
+            }
             showSavedBool = true
             showSavedButton.title = "Show Latest"
         }
@@ -64,14 +73,22 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
         NotificationCenter.default.addObserver(self, selector: #selector(setupFlowLayout), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
         
         DispatchQueue.global(qos: .userInitiated).async {
-            getTopArtists { ab in
-                self.allArtists = ab
+            getTopArtists { success , ab in
                 DispatchQueue.main.async {
-                    self.collectionView.delegate = self
-                    self.collectionView.dataSource = self
-                    //self.collectionView.decelerationRate = 0.3
-                    self.collectionView.reloadData()
+                    if success {
+                        self.allArtists = ab
+                        self.collectionView.delegate = self
+                        self.collectionView.dataSource = self
+                        
+                        //self.collectionView.decelerationRate = 0.3
+                        self.collectionView.reloadData()
+                        
+                    }else{
+                        self.showAlert(title: "Unable to Fetch Data", message: "Please Retry Again.")
+                    }
+                    self.mainLoadingIndicator.stopAnimating()
                 }
+                
             }
         }
         
@@ -146,9 +163,9 @@ extension MainViewController{
             }catch{
                 fatalError(error.localizedDescription)
             }
-             cell.loadingIndicator.stopAnimating()
+            cell.loadingIndicator.stopAnimating()
         }else{
-
+            
             cell.loadingIndicator.startAnimating()
             cell.prepareForReuse()
             let key = Array(allArtists.keys)[indexPath.row]
@@ -175,6 +192,14 @@ extension MainViewController{
                                 }
                                 
                             }
+                        }else{
+                            DispatchQueue.main.async {
+                                cell.loadingIndicator.stopAnimating()
+                                cell.artistImage.image = #imageLiteral(resourceName: "no_network")
+                                cell.artistImage.backgroundColor = UIColor.white
+                                cell.isUserInteractionEnabled = false
+                            }
+                            
                         }
                         
                     })
@@ -197,5 +222,20 @@ extension MainViewController{
             }
         }
     }
+    
+    func showAlert(title:String,message:String){
+        let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
+        alert.addAction(UIAlertAction(title: "Retry", style: UIAlertActionStyle.default, handler: {(action) in
+            alert.dismiss(animated: true, completion: nil)
+            self.mainLoadingIndicator.startAnimating()
+            self.viewDidLoad()
+            
+        }))
+        alert.addAction(UIAlertAction(title: "View Saved", style: UIAlertActionStyle.default, handler: {(action) in
+            self.showSavedButtonTapped(self)
+        }))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
     
 }

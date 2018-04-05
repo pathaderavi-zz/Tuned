@@ -26,6 +26,7 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     
     @IBAction func showSavedButtonTapped(_ sender: Any) {
         if showSavedBool {
+            fetchAllArtists()
             if allArtists.count == 0 {
                 viewDidLoad()
             }
@@ -56,12 +57,20 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        fetchAllArtists()
+        
         if !showSavedBool{
             if collectionView != nil {
                 collectionView.reloadItems(at: collectionView.indexPathsForVisibleItems)
-            }}else{
+            }
+            
+        }else{
+            fetchAllArtists()
             collectionView.reloadData()
+            if fetchedResultsController.fetchedObjects?.count == 0 {
+                noArtistsSavedLabel.alpha = 1
+            }else{
+                noArtistsSavedLabel.alpha = 0
+            }
         }
         
         
@@ -75,12 +84,10 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
         DispatchQueue.global(qos: .userInitiated).async {
             getTopArtists { success , ab in
                 DispatchQueue.main.async {
+                    self.collectionView.delegate = self
+                    self.collectionView.dataSource = self
                     if success {
                         self.allArtists = ab
-                        self.collectionView.delegate = self
-                        self.collectionView.dataSource = self
-                        
-                        //self.collectionView.decelerationRate = 0.3
                         self.collectionView.reloadData()
                         
                     }else{
@@ -156,6 +163,7 @@ extension MainViewController{
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Artist", for: indexPath) as! ArtistListCell
+        cell.isUserInteractionEnabled = true
         if showSavedBool{
             do {
                 cell.artistImage.image = UIImage(data:fetchedResultsController.fetchedObjects![indexPath.row].image!)
@@ -188,7 +196,8 @@ extension MainViewController{
                                     }
                                     cell.loadingIndicator.stopAnimating()
                                     self.imageCache.setObject(imgaeToCache, forKey: array as AnyObject)
-                                    collectionView.reloadItems(at: [indexPath])
+                                    if !self.showSavedBool{collectionView.reloadItems(at: [indexPath])}
+                                    
                                 }
                                 
                             }

@@ -40,6 +40,7 @@
 		4075084F206D19D0005F1336 /* BioContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BioContainer.swift; sourceTree = "<group>"; };
 		40750851206D1D3A005F1336 /* TracksContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracksContainer.swift; sourceTree = "<group>"; };
 		40750853206D1D66005F1336 /* EventsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsContainer.swift; sourceTree = "<group>"; };
+		40B177C02075984400088300 /* Artists 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Artists 4.xcdatamodel"; sourceTree = "<group>"; };
 		40F0E80620739CCB00FEC742 /* Artists.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Artists.xcdatamodel; sourceTree = "<group>"; };
 		40F0E80820739FA500FEC742 /* Artists 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Artists 2.xcdatamodel"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -405,11 +406,12 @@
 		40F0E80520739CCB00FEC742 /* Artists.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				40B177C02075984400088300 /* Artists 4.xcdatamodel */,
 				402D10AD2073F3A500749FD2 /* Artists 3.xcdatamodel */,
 				40F0E80820739FA500FEC742 /* Artists 2.xcdatamodel */,
 				40F0E80620739CCB00FEC742 /* Artists.xcdatamodel */,
 			);
-			currentVersion = 402D10AD2073F3A500749FD2 /* Artists 3.xcdatamodel */;
+			currentVersion = 40B177C02075984400088300 /* Artists 4.xcdatamodel */;
 			path = Artists.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

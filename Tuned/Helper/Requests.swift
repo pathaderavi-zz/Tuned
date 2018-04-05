@@ -33,7 +33,7 @@ func getTopArtists(completionHandler:@escaping(_ success:Bool, _ allImages:[Stri
                     if let b = a ["image"] as? [[String:AnyObject]]{
                         for b1 in b {
                             if let medium = b1["size"] as? String {
-                                if medium == "large"{
+                                if medium == "extralarge"{
                                     if let name = a["name"] as! String? {
                                         if let imageUrl = b1["#text"] as! String?{
                                             all[name as String] = imageUrl as String
@@ -174,7 +174,7 @@ func getLatestEvents(artistMbid:String,completionHandler:@escaping(_ success:Boo
     task.resume()
 }
 
-func getSocialHandles(mbid:String,completionHandler:@escaping(_ success:Bool,_ result:[String:AnyObject])->Void){
+func getSocialHandles(mbid:String,completionHandler:@escaping(_ success:Bool,_ result:[String:AnyObject],_ error:Bool)->Void){
     var result = [String:AnyObject]()
     let url = "https://musicbrainz.org/ws/2/artist/\(mbid)?inc=url-rels&fmt=json"
     let session = URLSession.shared
@@ -184,7 +184,7 @@ func getSocialHandles(mbid:String,completionHandler:@escaping(_ success:Bool,_ r
         
         guard error == nil else{
             if (error?.localizedDescription as! String) == "The Internet connection appears to be offline."{
-                completionHandler(false,result)
+                completionHandler(false,result,true)
             }
             return
         }
@@ -219,9 +219,9 @@ func getSocialHandles(mbid:String,completionHandler:@escaping(_ success:Bool,_ r
                     
                 }
             }
-             completionHandler(true,result)
+             completionHandler(true,result,false)
         }else{
-            completionHandler(false,result)
+            completionHandler(false,result,false)
         }
     }
     task.resume()

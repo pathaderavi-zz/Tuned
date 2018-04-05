@@ -33,7 +33,7 @@ func getTopArtists(completionHandler:@escaping(_ success:Bool, _ allImages:[Stri
                     if let b = a ["image"] as? [[String:AnyObject]]{
                         for b1 in b {
                             if let medium = b1["size"] as? String {
-                                if medium == "extralarge"{
+                                if medium == "large"{
                                     if let name = a["name"] as! String? {
                                         if let imageUrl = b1["#text"] as! String?{
                                             all[name as String] = imageUrl as String
@@ -60,7 +60,6 @@ func imageDownload(imageUrl:String,completionHandler:@escaping(_ success:Bool,_ 
     let task = session.dataTask(with: request as URLRequest) { (data, response, error) in
         if data == nil {
             if (error?.localizedDescription as! String) == "The Internet connection appears to be offline."{
-                print("error image")
                 completionHandler(false,Data())
                 }
     

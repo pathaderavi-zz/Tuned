@@ -121,6 +121,7 @@
                         <outlet property="flowLayout" destination="1GQ-sc-BVK" id="RXg-Oe-n30"/>
                         <outlet property="mainLoadingIndicator" destination="3TN-b1-wMO" id="oaQ-2e-LHb"/>
                         <outlet property="noArtistsSavedLabel" destination="IGr-Qc-3pG" id="6JA-rU-2Mk"/>
+                        <outlet property="searchBar" destination="RcG-Ec-xzN" id="U8K-ix-MOp"/>
                         <outlet property="showSavedButton" destination="Ynt-2E-1RF" id="WNE-of-eO8"/>
                         <segue destination="HSP-97-CZg" kind="show" identifier="artistDetail" id="Zxz-Dj-2UB"/>
                     </connections>
@@ -414,10 +415,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="287"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="nZF-Ju-Mrl">
-                                <rect key="frame" x="169" y="125" width="37" height="37"/>
-                                <color key="color" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            </activityIndicatorView>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Yu0-hn-0Bt">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="287"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -437,11 +434,24 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="nZF-Ju-Mrl">
+                                <rect key="frame" x="178" y="134" width="20" height="20"/>
+                                <color key="color" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </activityIndicatorView>
+                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.0" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="20" translatesAutoresizingMaskIntoConstraints="NO" id="6a5-bC-fey">
+                                <rect key="frame" x="188" y="144" width="0.0" height="0.0"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="27"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="Yu0-hn-0Bt" firstAttribute="trailing" secondItem="YkO-eE-b0H" secondAttribute="trailing" id="09v-lO-tWC"/>
                             <constraint firstItem="Yu0-hn-0Bt" firstAttribute="leading" secondItem="YkO-eE-b0H" secondAttribute="leading" id="3Cy-Ly-zmg"/>
+                            <constraint firstItem="6a5-bC-fey" firstAttribute="centerY" secondItem="YkO-eE-b0H" secondAttribute="centerY" id="Df1-5X-myA"/>
+                            <constraint firstItem="6a5-bC-fey" firstAttribute="centerX" secondItem="YkO-eE-b0H" secondAttribute="centerX" id="GCj-tc-gsq"/>
                             <constraint firstItem="nZF-Ju-Mrl" firstAttribute="centerX" secondItem="YkO-eE-b0H" secondAttribute="centerX" id="SFH-f4-qKL"/>
                             <constraint firstItem="nZF-Ju-Mrl" firstAttribute="centerY" secondItem="YkO-eE-b0H" secondAttribute="centerY" id="UtD-si-O05"/>
                             <constraint firstItem="Yu0-hn-0Bt" firstAttribute="top" secondItem="YkO-eE-b0H" secondAttribute="top" id="XgY-lI-Aqa"/>
@@ -451,6 +461,7 @@
                     </view>
                     <connections>
                         <outlet property="loadingIndicator" destination="nZF-Ju-Mrl" id="qRT-WE-4XP"/>
+                        <outlet property="noTracksFoundLabel" destination="6a5-bC-fey" id="GUP-iN-lMW"/>
                         <outlet property="tableVIew" destination="Yu0-hn-0Bt" id="zPS-hW-QjM"/>
                     </connections>
                 </viewController>
@@ -524,12 +535,13 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="287"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="FSa-wk-Ayr">
-                                <rect key="frame" x="169" y="125" width="37" height="37"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" red="1" green="0.59565417549999999" blue="0.5355140303" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <color key="color" red="1" green="0.19762290630000001" blue="0.076695176300000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            </activityIndicatorView>
+                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.0" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="20" translatesAutoresizingMaskIntoConstraints="NO" id="gQM-3k-943">
+                                <rect key="frame" x="187.5" y="50" width="0.0" height="0.0"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="27"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Nof-vV-HU2">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="287"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -556,18 +568,26 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="FSa-wk-Ayr">
+                                <rect key="frame" x="178" y="101" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstItem="FSa-wk-Ayr" firstAttribute="top" secondItem="gQM-3k-943" secondAttribute="bottom" constant="51" id="1Wc-9T-XYx"/>
                             <constraint firstAttribute="trailing" secondItem="Nof-vV-HU2" secondAttribute="trailing" id="6xx-zg-Rs7"/>
+                            <constraint firstItem="gQM-3k-943" firstAttribute="centerX" secondItem="FSa-wk-Ayr" secondAttribute="centerX" id="IAc-Vk-wnV"/>
                             <constraint firstItem="Nof-vV-HU2" firstAttribute="leading" secondItem="dBU-1g-wDB" secondAttribute="leading" id="byO-h2-U2I"/>
+                            <constraint firstItem="gQM-3k-943" firstAttribute="centerX" secondItem="Nof-vV-HU2" secondAttribute="centerX" id="oWr-Uz-HzT"/>
                             <constraint firstItem="Nof-vV-HU2" firstAttribute="top" secondItem="dBU-1g-wDB" secondAttribute="top" id="svb-ff-Xre"/>
+                            <constraint firstItem="gQM-3k-943" firstAttribute="top" secondItem="kW7-in-t1k" secondAttribute="top" constant="50" id="tfH-7F-9cO"/>
                             <constraint firstAttribute="bottom" secondItem="Nof-vV-HU2" secondAttribute="bottom" id="vCn-mQ-Tb9"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="kW7-in-t1k"/>
                     </view>
                     <connections>
                         <outlet property="loadingIndicator" destination="FSa-wk-Ayr" id="NAh-GJ-c8F"/>
+                        <outlet property="noEventsFoundLabel" destination="gQM-3k-943" id="5X5-Lc-p1M"/>
                         <outlet property="tableView" destination="Nof-vV-HU2" id="HaT-wi-iCr"/>
                     </connections>
                 </viewController>

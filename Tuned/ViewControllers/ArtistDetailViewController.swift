@@ -5,7 +5,8 @@
 //  Created by Ravikiran Pathade on 3/28/18.
 //  Copyright © 2018 Ravikiran Pathade. All rights reserved.
 //
-
+// TODO Border
+//TODO Gesture
 import Foundation
 import UIKit
 import CoreData
@@ -52,6 +53,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     fileprivate func fetchArtist() {
         let fetchRequest:NSFetchRequest<Artists> = Artists.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+
         fetchRequest.predicate = NSPredicate(format:"(name == %@)",artistName)
         // try? dataController.viewContext.fetch(fetchRequest)
         
@@ -69,12 +71,13 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
             fatalError("Cannot Fetch")
         }
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         fetchArtist()
         setupFavButton()
         disableButtons()
+
         tracksController = self.storyboard!.instantiateViewController(withIdentifier: "tracksContainer") as! TracksContainer
         eventsController = self.storyboard?.instantiateViewController(withIdentifier: "eventsContainer") as! EventsContainer
         scrollView.bounces = false
@@ -89,8 +92,6 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
         let updatedName = artistName.replacingOccurrences(of: " " , with: "+")
         imageView.image = UIImage(data:imageData)
         imageFit()
-        activateBorder(button: bioButton)
-        //TODO
         if fetchedResultController.fetchedObjects?.count != 0 {
             if let result = fetchedResultController.fetchedObjects?[0] {
                 currentArtist = Artist(dictionary: [String:AnyObject].init())
@@ -131,20 +132,19 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                             controller.lastFmUrl = NSMutableAttributedString(string:artist.bioContent)
                             self.c2.addSubview(controller.view)
                         }
-                        
+                        getTopTracks(artistName: self.artistName, completionHandler: { (success, result) in
+                            if success {
+                                self.fetchTracks = result
+                            }else{
+                                self.showAlert(title: "No Internet Connection", message: "Error Downloading Data. Please Try Again.")
+                            }
+                        })
                         getSocialHandles(mbid: artist.mbid) { (success, result, error) in
                             if success{
                                 DispatchQueue.main.async {
                                     self.enableButtons()
                                 }
                                 self.allSocialHandles = result
-                                getTopTracks(artistName: self.artistName, completionHandler: { (success, result) in
-                                    if success {
-                                        self.fetchTracks = result
-                                    }else{
-                                        self.showAlert(title: "No Internet Connection", message: "Error Downloading Data. Please Try Again.")
-                                    }
-                                })
                                 if !self.mbidStatus {
                                     getLatestEvents(artistMbid: artist.mbid, completionHandler: { (success, result) in
                                         if success {
@@ -173,6 +173,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
             }
         }
         self.setupContaiers()
+        activateBorder(button: bioButton)
     }
     @IBAction func youtubeButtonClicked(_ sender: Any) {
         
@@ -297,7 +298,6 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     @IBOutlet weak var favButton: UIButton!
     let border = CALayer()
     fileprivate func activateBorder(button:UIButton) {
-        
         if let count = (button.layer.sublayers?.count) {
             if count > 1{
                 // return
@@ -308,11 +308,13 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
         appearAnimation.toValue = button.frame.size.width
         appearAnimation.duration = 10
         button.layer.add(appearAnimation, forKey: "opacity")
+
         self.border.frame = CGRect(x: 0, y: button.frame.origin.y + button.frame.height - 1, width: button.frame.size.width, height: 1)
         self.border.backgroundColor = UIColor.white.cgColor
-        self.border.removeFromSuperlayer()
+        if self.border.superlayer != nil {
+            self.border.removeFromSuperlayer()
+        }
         button.layer.addSublayer(self.border)
-        
     }
     
     @IBAction func bioButtonClicked(_ sender: Any) {
@@ -349,7 +351,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                                 self.tracksController.allTracks = allTracks
                                 self.fetchTracks = allTracks
                                 self.c1.addSubview(self.tracksController.view)
-                                // self.tracksController.loadingIndicator.stopAnimating()
+                                self.tracksController.loadingIndicator.stopAnimating()
                             }
                         }
                     })
@@ -390,7 +392,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
             }else{
                 self.eventsController.allEvents = self.fetchEvents
                 self.eventsContainer.addSubview(self.eventsController.view)
-                self.eventsController.tableView.reloadData()
+                //self.eventsController.tableView.reloadData()
                 self.eventsController.loadingIndicator.stopAnimating()
             }
         }
@@ -424,7 +426,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
             print(e.localizedDescription)
         }
         
-        if fetchTracks.count == 0 || fetchTracks.count == 0{
+        if fetchTracks.count == 0  {
             DispatchQueue.global(qos: .userInitiated).async {
                 getTopTracks(artistName: self.artistName, completionHandler: { (success, topTracks) in
                     if success{
@@ -444,6 +446,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                             
                         }
                         if self.currentArtist.mbid != "" {
+                     
                             getLatestEvents(artistMbid: self.currentArtist.mbid, completionHandler: { (success, events) in
                                 DispatchQueue.main.async {
                                     for event in events{
@@ -501,8 +504,9 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                     print(e.localizedDescription)
                 }
             }
-            
-            //Save Events
+            print(artistName)
+            if !mbidStatus{
+            print(mbidStatus)
             for event in fetchEvents{
                 self.events = Events(context:self.dataController.viewContext)
                 self.events.name = event.key
@@ -535,7 +539,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
             }catch let er{
                 fatalError(er.localizedDescription)
             }
-            
+        }
         }
         
         fetchArtist()
@@ -547,14 +551,13 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
         self.favButton.isEnabled = false
         self.yelloFav.isEnabled = false
         self.fetchArtist()
-        self.dataController.viewContext.delete(self.artist)
+        self.dataController.viewContext.delete(self.fetchedResultController.fetchedObjects![0])
         do {
             try self.dataController.viewContext.save()
         }catch{
             fatalError("2")
         }
         self.fetchArtist()
-        print(self.fetchedResultController.fetchedObjects?.count)
         // }
     }
     
@@ -609,7 +612,7 @@ extension ArtistDetailViewController{
         self.c2.alpha = 1
         self.c1.alpha = 0
     }
-    override func viewWillDisappear(_ animated: Bool) {
+    fileprivate func saveonDisappear() {
         if yelloFav.isHidden{
             if fetchedResultController.fetchedObjects?.count != 0 {
                 deleteArtist()
@@ -618,6 +621,14 @@ extension ArtistDetailViewController{
             if (fetchedResultController.fetchedObjects?.count)! < 1 {
                 saveArtist()
             }
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        do {
+            try saveonDisappear()
+        }catch let e {
+            print(e.localizedDescription)
         }
         super.viewWillAppear(animated)
     }

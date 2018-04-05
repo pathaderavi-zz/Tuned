@@ -12,8 +12,18 @@ import UIKit
 class EventsContainer:UIViewController,UITableViewDelegate,UITableViewDataSource{
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var noEventsFoundLabel: UILabel!
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if self.allEvents.count != 0 {
+            noEventsFoundLabel.alpha = 0
+            self.tableView.alpha = 1
+            self.noEventsFoundLabel.text = ""
+        }else{
+            self.noEventsFoundLabel.alpha = 1
+            self.tableView.alpha = 0
+            self.noEventsFoundLabel.text = "No Events Found"
+        }
         return allEvents.count
     }
     
@@ -32,7 +42,6 @@ class EventsContainer:UIViewController,UITableViewDelegate,UITableViewDataSource
         cell.textLabel?.textColor = UIColor.white
         cell.textLabel?.text = key
         cell.detailTextLabel?.removeFromSuperview()
-     
         cell.selectionStyle = UITableViewCellSelectionStyle.none
         return cell
     }
@@ -44,7 +53,7 @@ class EventsContainer:UIViewController,UITableViewDelegate,UITableViewDataSource
         tableView.dataSource = self
         tableView.bounces = false
         tableView.indicatorStyle = .white
-        tableView.tableFooterView = UIView()
         tableView.reloadData()
+        tableView.tableFooterView = UIView()
     }
 }

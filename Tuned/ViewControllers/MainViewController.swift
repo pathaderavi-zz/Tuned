@@ -9,7 +9,8 @@
 import UIKit
 import CoreData
 
-class MainViewController: UIViewController,UICollectionViewDelegate,UICollectionViewDataSource,NSFetchedResultsControllerDelegate {
+class MainViewController: UIViewController,UICollectionViewDelegate,UICollectionViewDataSource,NSFetchedResultsControllerDelegate,UISearchBarDelegate {
+    @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var mainLoadingIndicator: UIActivityIndicatorView!
     @IBOutlet weak var noArtistsSavedLabel: UILabel!
     var allArtists = [String:String]()
@@ -35,9 +36,19 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
             showSavedButton.title = "Show Saved"
         }else{
             fetchAllArtists()
+            for d in fetchedResultsController.fetchedObjects! {
+                print(d.name)
+                if d.name == nil {
+                    dataController.viewContext.delete(d)
+                    try? dataController.viewContext.save()
+                }
+            }
             if fetchedResultsController.fetchedObjects?.count == 0 {
                 noArtistsSavedLabel.alpha = 1
+            }else{
+                collectionView.scrollToItem(at: [0,1], at: .top, animated: false)
             }
+
             showSavedBool = true
             showSavedButton.title = "Show Latest"
         }
@@ -56,8 +67,8 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
         fetchedResultsController = nil
     }
     override func viewWillAppear(_ animated: Bool) {
+        self.setupFlowLayout()
         super.viewWillAppear(animated)
-        
         if !showSavedBool{
             if collectionView != nil {
                 collectionView.reloadItems(at: collectionView.indexPathsForVisibleItems)
@@ -76,11 +87,15 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
         
         self.setupFlowLayout()
     }
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+         searchBar.resignFirstResponder()
+    }
+ 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         NotificationCenter.default.addObserver(self, selector: #selector(setupFlowLayout), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
-        
+        searchBar.delegate = self
         DispatchQueue.global(qos: .userInitiated).async {
             getTopArtists { success , ab in
                 DispatchQueue.main.async {
@@ -166,7 +181,9 @@ extension MainViewController{
         cell.isUserInteractionEnabled = true
         if showSavedBool{
             do {
-                cell.artistImage.image = UIImage(data:fetchedResultsController.fetchedObjects![indexPath.row].image!)
+                if (fetchedResultsController.fetchedObjects![indexPath.row].image != nil){
+                    cell.artistImage.image = UIImage(data:fetchedResultsController.fetchedObjects![indexPath.row].image!)
+                }
                 cell.artistName.text = fetchedResultsController.fetchedObjects![indexPath.row].name
             }catch{
                 fatalError(error.localizedDescription)

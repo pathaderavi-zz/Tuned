@@ -11,8 +11,19 @@ import UIKit
 //UITableViewDelegate,UITableViewDataSource
 class TracksContainer:UIViewController, UITableViewDataSource, UITableViewDelegate{
     @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var noTracksFoundLabel: UILabel!
     @IBOutlet weak var tableVIew: UITableView!
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if allTracks.count == 0 {
+            noTracksFoundLabel.alpha = 1
+            self.tableVIew.alpha = 0
+            self.noTracksFoundLabel.text = "No Tracks Found"
+        }else{
+            noTracksFoundLabel.alpha = 0
+            self.tableVIew.alpha = 1
+            self.noTracksFoundLabel.text = ""
+        }
+        self.loadingIndicator.stopAnimating()
         return allTracks.count
     }
     
@@ -32,11 +43,10 @@ class TracksContainer:UIViewController, UITableViewDataSource, UITableViewDelega
         super.viewDidLoad()
         tableVIew.delegate = self
         tableVIew.dataSource = self
-//        tableVIew.rowHeight = 28
         tableVIew.tableFooterView = UIView()
         tableVIew.bounces = false
         tableVIew.indicatorStyle = .white
         tableVIew.reloadData()
     }
-
+    
 }

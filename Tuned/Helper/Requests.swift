@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 func getTopArtists(completionHandler:@escaping(_ success:Bool, _ allImages:[String:String])->Void) {
     var topArtistUrl = "https://ws.audioscrobbler.com/2.0/?method=chart.gettopartists&api_key=63bc85712ced4b9c92bed61d2e60441e&format=json"
@@ -71,16 +72,17 @@ func imageDownload(imageUrl:String,completionHandler:@escaping(_ success:Bool,_ 
     task.resume()
 }
 
-func artistDataDownload(artist:String,completionHadler:@escaping(_ success:Bool,_ artist:Artist)->Void){
+func artistDataDownload(artist:String,completionHadler:@escaping(_ success:Bool,_ artist:Artist,_ noneFound:Bool)->Void){
     let session = URLSession.shared
     let updatedArtist = artist.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
     let stringUrl = "https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=\(updatedArtist)&api_key=63bc85712ced4b9c92bed61d2e60441e&format=json"
+
     let request = URLRequest(url:URL(string:stringUrl)!)
     
     let task = session.dataTask(with: request) { (data, response, error) in
         if error != nil {
             if (error?.localizedDescription as! String) == "The Internet connection appears to be offline."{
-                completionHadler(false,Artist(dictionary: [:]))
+                completionHadler(false,Artist(dictionary: [:]),false)
             }
             return
         }
@@ -95,7 +97,9 @@ func artistDataDownload(artist:String,completionHadler:@escaping(_ success:Bool,
             
             let result = Artist.init(dictionary: set1)
 
-            completionHadler(true,result)
+            completionHadler(true,result,false)
+        }else{
+            completionHadler(true,Artist(dictionary: [:]),true)
         }
        
         
@@ -223,6 +227,55 @@ func getSocialHandles(mbid:String,completionHandler:@escaping(_ success:Bool,_ r
             completionHandler(false,result,false)
         }
     }
+    task.resume()
+}
+
+func searchArtists(search:String, completionHandler:@escaping(_ success:Bool,_ searchArtists:[String:String],_ allSearchUrls:[String:String])->Void){
+    let sesssion = URLSession.shared
+    let url = "https://ws.audioscrobbler.com/2.0/?method=artist.search&artist=\(search)&api_key=63bc85712ced4b9c92bed61d2e60441e&format=json"
+    let request = URLRequest(url:URL(string:url)!)
+    var allLastFmUrls = [String:String]()
+    let task = sesssion.dataTask(with: request, completionHandler: { (data, response, error) in
+        var result = [String:String]()
+        guard error == nil else {
+            //Handle error Condition
+            completionHandler(false,result,allLastFmUrls)
+            print(error?.localizedDescription)
+            return
+        }
+        let parsedResult : [String:AnyObject]!
+
+        do{
+            try parsedResult = JSONSerialization.jsonObject(with: data!, options: .allowFragments) as! [String:AnyObject]
+            
+        }catch{
+               fatalError("Cannot parse")
+        }
+        
+        if let res = parsedResult["results"] as? [String:AnyObject]{
+            if let artistMatches = res["artistmatches"] as? [String:AnyObject]{
+                if let artistArray = artistMatches["artist"] as? [[String:AnyObject]] {
+                    for a in artistArray {
+                        if let name = a["name"] as? String{
+                            if let image = a["image"] as? [[String:AnyObject]]{
+                                for i in image {
+                                    if i["size"] as? String == "large" {
+                                        let u = (i["#text"] as? String) != ""
+                                        if u {
+                                            result[name] = i["#text"] as? String
+                                            allLastFmUrls[name] = a["url"] as? String
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                      completionHandler(true,result,allLastFmUrls)
+                }
+            }
+        }
+      
+    })
     task.resume()
 }
 

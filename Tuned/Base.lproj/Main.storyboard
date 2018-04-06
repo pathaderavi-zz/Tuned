@@ -77,6 +77,11 @@
                                 <color key="barTintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <textInputTraits key="textInputTraits"/>
                             </searchBar>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="K9d-uO-0uG">
+                                <rect key="frame" x="0.0" y="114" width="375" height="50"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </tableView>
                             <label opaque="NO" userInteractionEnabled="NO" alpha="0.0" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No Artists Saved" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IGr-Qc-3pG">
                                 <rect key="frame" x="56" y="321" width="263.5" height="44.5"/>
                                 <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -109,6 +114,11 @@
                     </view>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="Tuned" id="QYD-Fe-oub">
+                        <barButtonItem key="leftBarButtonItem" title="Home" id="6Kr-WO-9MO">
+                            <connections>
+                                <action selector="homeButtonTapped:" destination="BYZ-38-t0r" id="OVy-nh-4QL"/>
+                            </connections>
+                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" title="Show Saved" id="Ynt-2E-1RF">
                             <connections>
                                 <action selector="showSavedButtonTapped:" destination="BYZ-38-t0r" id="k9L-D9-cxK"/>
@@ -122,6 +132,7 @@
                         <outlet property="mainLoadingIndicator" destination="3TN-b1-wMO" id="oaQ-2e-LHb"/>
                         <outlet property="noArtistsSavedLabel" destination="IGr-Qc-3pG" id="6JA-rU-2Mk"/>
                         <outlet property="searchBar" destination="RcG-Ec-xzN" id="U8K-ix-MOp"/>
+                        <outlet property="searchTableView" destination="K9d-uO-0uG" id="hBk-h9-HRR"/>
                         <outlet property="showSavedButton" destination="Ynt-2E-1RF" id="WNE-of-eO8"/>
                         <segue destination="HSP-97-CZg" kind="show" identifier="artistDetail" id="Zxz-Dj-2UB"/>
                     </connections>
@@ -141,9 +152,6 @@
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TWF-Fu-WTY">
                                 <rect key="frame" x="0.0" y="64" width="375" height="559"/>
                                 <subviews>
-                                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="1u8-rH-3hJ">
-                                        <rect key="frame" x="169" y="209" width="37" height="37"/>
-                                    </activityIndicatorView>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="GNW-ZT-8XD">
                                         <rect key="frame" x="8" y="8" width="161" height="200"/>
                                         <constraints>
@@ -311,6 +319,9 @@
                                             <segue destination="vFX-4I-6aV" kind="embed" id="fpL-GJ-hbU"/>
                                         </connections>
                                     </containerView>
+                                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="1u8-rH-3hJ">
+                                        <rect key="frame" x="169" y="209" width="37" height="37"/>
+                                    </activityIndicatorView>
                                 </subviews>
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="tvf-g8-KTg" secondAttribute="trailing" id="1ER-fj-ROT"/>

@@ -6,7 +6,7 @@
 //  Copyright © 2018 Ravikiran Pathade. All rights reserved.
 //
 // TODO Border
-//TODO Gesture
+
 import Foundation
 import UIKit
 import CoreData
@@ -32,6 +32,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
     var activeContainer:Int = 1
     var mbidStatus:Bool = false
+    var artistUrlFromMain:String!
     
     //CoreData variables
     var artist:Artists!
@@ -53,7 +54,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     fileprivate func fetchArtist() {
         let fetchRequest:NSFetchRequest<Artists> = Artists.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-
+        
         fetchRequest.predicate = NSPredicate(format:"(name == %@)",artistName)
         // try? dataController.viewContext.fetch(fetchRequest)
         
@@ -71,13 +72,19 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
             fatalError("Cannot Fetch")
         }
     }
-
+    @objc func visibleCollectionViewCellsReload(){
+        if !UserDefaults.standard.bool(forKey: "incoming"){
+            print("goback")
+            self.navigationController?.popViewController(animated: true)
+            UserDefaults.standard.set(true, forKey: "incoming")
+        }
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         fetchArtist()
         setupFavButton()
         disableButtons()
-
+        NotificationCenter.default.addObserver(self, selector: #selector(visibleCollectionViewCellsReload), name: .UIApplicationDidBecomeActive, object: nil)
         tracksController = self.storyboard!.instantiateViewController(withIdentifier: "tracksContainer") as! TracksContainer
         eventsController = self.storyboard?.instantiateViewController(withIdentifier: "eventsContainer") as! EventsContainer
         scrollView.bounces = false
@@ -117,7 +124,14 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
             
             
             DispatchQueue.global(qos:.userInitiated).async {
-                artistDataDownload(artist: updatedName, completionHadler: { (success,artist) in
+                artistDataDownload(artist: updatedName, completionHadler: { (success,artist,noneFound) in
+                    if noneFound{
+                        UserDefaults.standard.set(false, forKey: "incoming")
+                        //self.navigationController?.popViewController(animated: true)
+                        self.showAlertUnableToFetch(title: "Unable to Fetch", message: "Would you like to see details on Last.fm webpage?")
+                        self.loadingIndicator.stopAnimating()
+                        return
+                    }
                     if success{
                         self.currentArtist = artist
                         self.mbidStatus = (artist.mbid == "")
@@ -132,7 +146,9 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                             controller.lastFmUrl = NSMutableAttributedString(string:artist.bioContent)
                             self.c2.addSubview(controller.view)
                         }
+                        
                         getTopTracks(artistName: self.artistName, completionHandler: { (success, result) in
+                            print("getTopTracks")
                             if success {
                                 self.fetchTracks = result
                             }else{
@@ -140,6 +156,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                             }
                         })
                         getSocialHandles(mbid: artist.mbid) { (success, result, error) in
+                            print("getSocialHandles")
                             if success{
                                 DispatchQueue.main.async {
                                     self.enableButtons()
@@ -166,6 +183,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                             
                         }
                     } else {
+                        
                         self.showAlert(title: "No Internet Connection", message: "Unable to Connect to the Internet. Please try again.")
                     }
                 })
@@ -308,7 +326,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
         appearAnimation.toValue = button.frame.size.width
         appearAnimation.duration = 10
         button.layer.add(appearAnimation, forKey: "opacity")
-
+        
         self.border.frame = CGRect(x: 0, y: button.frame.origin.y + button.frame.height - 1, width: button.frame.size.width, height: 1)
         self.border.backgroundColor = UIColor.white.cgColor
         if self.border.superlayer != nil {
@@ -446,7 +464,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                             
                         }
                         if self.currentArtist.mbid != "" {
-                     
+                            
                             getLatestEvents(artistMbid: self.currentArtist.mbid, completionHandler: { (success, events) in
                                 DispatchQueue.main.async {
                                     for event in events{
@@ -506,40 +524,40 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
             }
             print(artistName)
             if !mbidStatus{
-            print(mbidStatus)
-            for event in fetchEvents{
-                self.events = Events(context:self.dataController.viewContext)
-                self.events.name = event.key
-                self.events.artistEvents = self.artist
+                print(mbidStatus)
+                for event in fetchEvents{
+                    self.events = Events(context:self.dataController.viewContext)
+                    self.events.name = event.key
+                    self.events.artistEvents = self.artist
+                    do {
+                        try self.dataController.viewContext.save()
+                    }catch let e{
+                        print(e.localizedDescription)
+                    }
+                }
+                
+                //Save Socials
+                self.socials = Socials(context:self.dataController.viewContext)
+                self.socials.socialsArtist = self.artist
+                if let fb = allSocialHandles["facebook"] as? String {
+                    self.socials.facebook = fb
+                }
+                if let twitter = allSocialHandles["twitter"] as? String {
+                    self.socials.twitter = twitter
+                }
+                if let ig = allSocialHandles["instagram"] as? String {
+                    self.socials.instagram = ig
+                }
+                if let youtube = allSocialHandles["youtube"] as? String {
+                    self.socials.yotutube = youtube
+                }
+                
                 do {
                     try self.dataController.viewContext.save()
-                }catch let e{
-                    print(e.localizedDescription)
+                }catch let er{
+                    fatalError(er.localizedDescription)
                 }
             }
-            
-            //Save Socials
-            self.socials = Socials(context:self.dataController.viewContext)
-            self.socials.socialsArtist = self.artist
-            if let fb = allSocialHandles["facebook"] as? String {
-                self.socials.facebook = fb
-            }
-            if let twitter = allSocialHandles["twitter"] as? String {
-                self.socials.twitter = twitter
-            }
-            if let ig = allSocialHandles["instagram"] as? String {
-                self.socials.instagram = ig
-            }
-            if let youtube = allSocialHandles["youtube"] as? String {
-                self.socials.yotutube = youtube
-            }
-            
-            do {
-                try self.dataController.viewContext.save()
-            }catch let er{
-                fatalError(er.localizedDescription)
-            }
-        }
         }
         
         fetchArtist()
@@ -547,7 +565,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     }
     
     fileprivate func deleteArtist() {
-        //DispatchQueue.main.async {
+        
         self.favButton.isEnabled = false
         self.yelloFav.isEnabled = false
         self.fetchArtist()
@@ -558,7 +576,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
             fatalError("2")
         }
         self.fetchArtist()
-        // }
+        
     }
     
     @IBAction func favoriteButton(_ sender: Any) {
@@ -569,9 +587,6 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
             yelloFav.isHidden = false
             favButton.isHidden = true
         }
-        //
-        //
-        
     }
 }
 extension ArtistDetailViewController{
@@ -591,6 +606,7 @@ extension ArtistDetailViewController{
                 youtubeButton.isEnabled = true
             }
         }
+        enableFavorites()
         bioButton.isEnabled = true
         tracksButton.isEnabled = true
         eventsButton.isEnabled = true
@@ -603,6 +619,7 @@ extension ArtistDetailViewController{
         instagramButton.isEnabled = false
         youtubeButton.isEnabled = false
         
+        disableFavorites()
         bioButton.isEnabled = false
         tracksButton.isEnabled = false
         eventsButton.isEnabled = false
@@ -644,6 +661,27 @@ extension ArtistDetailViewController{
         }))
         self.present(alert, animated: true, completion: nil)
     }
+    
+    func showAlertUnableToFetch(title:String,message:String){
+        let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
+        
+        alert.addAction(UIAlertAction(title: "Go Back", style: UIAlertActionStyle.default, handler: {(action) in
+            alert.dismiss(animated: true, completion: nil)
+            self.navigationController?.popViewController(animated: true)
+        }))
+        //if url is not null and canopn
+        if artistUrlFromMain != nil && artistUrlFromMain.count != 0 {
+            if UIApplication.shared.canOpenURL(URL(string:artistUrlFromMain)!){
+                alert.addAction(UIAlertAction(title: "Open", style: UIAlertActionStyle.default, handler: {(action) in
+                    alert.dismiss(animated: true, completion: nil)
+                    UIApplication.shared.open(URL(string:self.artistUrlFromMain)!, options: [:] , completionHandler: { (success) in
+                        
+                    })
+                     self.navigationController?.popViewController(animated: true)
+                }))}
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
 }
 extension ArtistDetailViewController {
     fileprivate func fetchAllTracks() {
@@ -682,6 +720,25 @@ extension ArtistDetailViewController {
             fatalError("Cannot Fetch")
         }
     }
+    
+    func enableFavorites(){
+        if !yelloFav.isHidden{
+            yelloFav.isEnabled = true
+        }
+        if !favButton.isHidden{
+            favButton.isEnabled = true
+        }
+        
+    }
+    func disableFavorites(){
+        if !yelloFav.isHidden{
+            yelloFav.isEnabled = false
+        }
+        if !favButton.isHidden{
+            favButton.isEnabled = false
+        }
+    }
+    
     fileprivate func fetchSocials() {
         let fetchRequest:NSFetchRequest<Socials> = Socials.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "facebook", ascending: false)]

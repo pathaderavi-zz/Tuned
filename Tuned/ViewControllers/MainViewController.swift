@@ -54,6 +54,7 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
         searchBar.delegate = self
         searchBar.setValue("Show All", forKey:"_cancelButtonText")
         searchBar.placeholder = "Showing Top Artists"
+        showSavedButton.isEnabled = false
         DispatchQueue.global(qos: .userInitiated).async {
             getTopArtists { success , ab in
                 DispatchQueue.main.async {
@@ -68,8 +69,12 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
                     }
                     self.mainLoadingIndicator.stopAnimating()
                 }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    self.showSavedButton.isEnabled = true
+                }
                 
             }
+            
         }
         
     }
@@ -98,51 +103,62 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     
     //--- Delegates
     
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 1
     }
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: false)
+        let sb = searchBar
+        searchBar.text = UserDefaults.standard.string(forKey: "lastSearch")
+        searchBarSearchButtonClicked(sb!)
+    }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell()
-        cell.textLabel?.text = "Example"
+        let check = UserDefaults.standard.string(forKey: "lastSearch") == nil
+        if !check{
+            cell.textLabel?.text = "Previously Searched for \""+UserDefaults.standard.string(forKey: "lastSearch")!+"\""
+        }
+        cell.textLabel?.adjustsFontSizeToFitWidth = true
         return cell
     }
-    var inss:Int = 0
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
         if searchBar.text == "" {
-            inss += 1
-            print(inss)
             self.searchBar.resignFirstResponder()
         }
         
     }
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        searchTableView.frame = CGRect(x: searchTableView.frame.origin.x, y: searchTableView.frame.origin.y, width: searchTableView.frame.size.width, height: searchTableView.contentSize.height)
-        UIView.animate(
-            withDuration: 0.2,
-            delay: 0.0,
-            options: .transitionCurlUp,
-            animations: {
-                self.searchTableView.alpha = 1
-                self.searchTableView.reloadData()
-        }) { (completed) in
+        let check = UserDefaults.standard.string(forKey: "lastSearch") == nil
+        if check {
             
+        }else{
+            searchTableView.frame = CGRect(x: searchTableView.frame.origin.x, y: searchTableView.frame.origin.y, width: searchTableView.frame.size.width, height: searchTableView.contentSize.height)
+            UIView.animate(
+                withDuration: 0.2,
+                delay: 0.0,
+                options: .transitionCurlUp,
+                animations: {
+                    self.searchTableView.alpha = 1
+                    self.searchTableView.reloadData()
+            }) { (completed) in
+                
+            }
+            if showSavedBool{
+                
+            }
         }
-        if showSavedBool{
-            
-        }
-        
     }
     
     var prevFetch = false
     var goHome = false
     var searchStringFav:String!
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let userDefaults = UserDefaults.standard
         if showSavedBool{
             //Search Saved
             if searchBar.text?.count != 0 {
+                userDefaults.set(searchBar.text, forKey: "lastSearch")
                 prevFetch = true
                 if prevFetch{
                     homeButton.isEnabled = true
@@ -162,8 +178,9 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
                 
             }
         }else{
-            print("search online")
             if searchBar.text?.count != 0 {
+                userDefaults.set(searchBar.text, forKey: "lastSearch")
+                showSavedButton.isEnabled = false
                 self.mainLoadingIndicator.startAnimating()
                 //navigationItem.rightBarButtonItem?.isEnabled = false
                 navigationItem.leftBarButtonItem?.isEnabled = true
@@ -171,6 +188,7 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
                 let q = searchBar.text!
                 searchBar.text = ""
                 searchBar.placeholder = "Showing Results for " + q
+                
                 DispatchQueue.global(qos: .userInitiated).async {
                     searchArtists(search: q, completionHandler: {success, res , lastFmUrl in
                         if success {
@@ -190,6 +208,9 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
                                     self.collectionView.reloadData()
                                 }
                                 self.mainLoadingIndicator.stopAnimating()
+                                
+                                
+                                
                             }
                         }else{
                             DispatchQueue.main.async {
@@ -198,7 +219,9 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
                             }
                         }
                     })
-                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        self.showSavedButton.isEnabled = true
+                    }
                 }
             }else{
                 searchBar.text = ""
@@ -223,7 +246,6 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
         
         searchBar.resignFirstResponder()
         if showSavedBool{
-            print("Show All Favorites")
         }
     }
     //--- IBAction Functions
@@ -269,7 +291,6 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
             }
             
         }else{
-            print("print")
         }
     }
     
@@ -297,6 +318,7 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
             
             //
         }else{
+            
             navigationItem.rightBarButtonItem?.tintColor = UIColor.red
             self.fetchAllArtists()
             searchBar.placeholder = ""
@@ -348,10 +370,8 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
             
         }
         if allArtists.count < 40 {
-            print(allArtists.count)
             navigationItem.leftBarButtonItem?.isEnabled = true
         }else{
-            print(allArtists.count)
             navigationItem.leftBarButtonItem?.isEnabled = false
         }
         if allArtists.count == 0 {
@@ -367,16 +387,16 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
         let fetchRequest:NSFetchRequest<Artists> = Artists.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         //var searchAsked = true
-                if prevFetch {
-                    let words = searchStringFav.components(separatedBy: " ")
-                    var predicateArray = [NSPredicate]()
-                    for word in words {
-                        let predicate = NSPredicate(format: "(name contains[cd] %@)", word)
-                        predicateArray.append(predicate)
-                    }
-                    fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates:predicateArray)
-                    //searchAsked = false
-                }
+        if prevFetch {
+            let words = searchStringFav.components(separatedBy: " ")
+            var predicateArray = [NSPredicate]()
+            for word in words {
+                let predicate = NSPredicate(format: "(name contains[cd] %@)", word)
+                predicateArray.append(predicate)
+            }
+            fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates:predicateArray)
+            //searchAsked = false
+        }
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
         try? fetchedResultsController.performFetch()
         
@@ -527,7 +547,6 @@ extension MainViewController{
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         
     }
-    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Artist", for: indexPath) as! ArtistListCell
         cell.isUserInteractionEnabled = true
@@ -566,7 +585,6 @@ extension MainViewController{
                                     }
                                     cell.loadingIndicator.stopAnimating()
                                     self.imageCache.setObject(imgaeToCache, forKey: array as AnyObject)
-                                    print(self.artistName)
                                     if !self.showSavedBool{
                                         if indexPath.row < self.allArtists.count{
                                             collectionView.reloadItems(at: [indexPath])
@@ -588,9 +606,12 @@ extension MainViewController{
                         
                     })
                     
+                    
                 }
+                
             }
         }
+        
         return cell
     }
     

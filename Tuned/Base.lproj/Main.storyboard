@@ -48,16 +48,17 @@
                                                     <color key="textColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="s9O-g3-A5O">
+                                                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="s9O-g3-A5O">
                                                     <rect key="frame" x="72" y="102" width="37" height="37"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 </activityIndicatorView>
                                             </subviews>
                                         </view>
                                         <constraints>
+                                            <constraint firstItem="s9O-g3-A5O" firstAttribute="centerX" secondItem="U8c-zt-h17" secondAttribute="centerX" id="8EL-1V-Are"/>
                                             <constraint firstItem="A8f-Rp-FFE" firstAttribute="top" secondItem="f5p-Jt-utQ" secondAttribute="top" id="FD3-us-uNZ"/>
                                             <constraint firstAttribute="trailing" secondItem="U8c-zt-h17" secondAttribute="trailing" id="Toj-h6-Wch"/>
                                             <constraint firstItem="U8c-zt-h17" firstAttribute="leading" secondItem="f5p-Jt-utQ" secondAttribute="leading" id="Yjp-12-QyB"/>
+                                            <constraint firstItem="s9O-g3-A5O" firstAttribute="centerY" secondItem="A8f-Rp-FFE" secondAttribute="centerY" id="cL9-Oa-NNN"/>
                                             <constraint firstItem="A8f-Rp-FFE" firstAttribute="leading" secondItem="f5p-Jt-utQ" secondAttribute="leading" id="eWU-YE-xLB"/>
                                             <constraint firstAttribute="bottom" secondItem="U8c-zt-h17" secondAttribute="bottom" id="gCP-ew-40F"/>
                                             <constraint firstAttribute="trailing" secondItem="A8f-Rp-FFE" secondAttribute="trailing" id="lbf-hO-V0P"/>
@@ -77,30 +78,35 @@
                                 <color key="barTintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <textInputTraits key="textInputTraits"/>
                             </searchBar>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="K9d-uO-0uG">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="K9d-uO-0uG">
                                 <rect key="frame" x="0.0" y="114" width="375" height="50"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="EqO-wK-1h6"/>
+                                </constraints>
                             </tableView>
                             <label opaque="NO" userInteractionEnabled="NO" alpha="0.0" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IGr-Qc-3pG">
-                                <rect key="frame" x="188" y="343.5" width="0.0" height="0.0"/>
+                                <rect key="frame" x="188" y="344" width="0.0" height="0.0"/>
                                 <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="37"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="3TN-b1-wMO">
-                                <rect key="frame" x="169" y="325.5" width="37" height="37"/>
+                                <rect key="frame" x="169" y="325" width="37" height="37"/>
                             </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="gwX-Lp-adM" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="50" id="3ao-0z-y8o"/>
+                            <constraint firstItem="K9d-uO-0uG" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="6wk-xs-Yg6"/>
+                            <constraint firstItem="K9d-uO-0uG" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="7TS-aV-KKV"/>
                             <constraint firstItem="RcG-Ec-xzN" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="86o-OD-6pd"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="gwX-Lp-adM" secondAttribute="trailing" id="FOB-nb-9FE"/>
                             <constraint firstItem="3TN-b1-wMO" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="FPj-4A-u9i"/>
                             <constraint firstItem="IGr-Qc-3pG" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="Ogn-FE-tn2"/>
                             <constraint firstItem="RcG-Ec-xzN" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="Y9a-xG-G37"/>
+                            <constraint firstItem="K9d-uO-0uG" firstAttribute="top" secondItem="RcG-Ec-xzN" secondAttribute="bottom" id="Yw7-Yr-ZHO"/>
                             <constraint firstItem="gwX-Lp-adM" firstAttribute="top" secondItem="RcG-Ec-xzN" secondAttribute="bottom" id="ad9-DW-8sa"/>
                             <constraint firstItem="gwX-Lp-adM" firstAttribute="top" secondItem="RcG-Ec-xzN" secondAttribute="bottom" id="fJF-O3-Yak"/>
                             <constraint firstAttribute="bottom" secondItem="gwX-Lp-adM" secondAttribute="bottom" id="l5y-mN-y6V"/>

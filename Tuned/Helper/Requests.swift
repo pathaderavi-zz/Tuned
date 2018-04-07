@@ -232,7 +232,9 @@ func getSocialHandles(mbid:String,completionHandler:@escaping(_ success:Bool,_ r
 
 func searchArtists(search:String, completionHandler:@escaping(_ success:Bool,_ searchArtists:[String:String],_ allSearchUrls:[String:String])->Void){
     let sesssion = URLSession.shared
-    let url = "https://ws.audioscrobbler.com/2.0/?method=artist.search&artist=\(search)&api_key=63bc85712ced4b9c92bed61d2e60441e&format=json"
+    let updatedName = search.replacingOccurrences(of: " " , with: "+")
+    let updatedArtist = updatedName.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
+    let url = "https://ws.audioscrobbler.com/2.0/?method=artist.search&artist=\(updatedArtist)&api_key=63bc85712ced4b9c92bed61d2e60441e&format=json"
     let request = URLRequest(url:URL(string:url)!)
     var allLastFmUrls = [String:String]()
     let task = sesssion.dataTask(with: request, completionHandler: { (data, response, error) in

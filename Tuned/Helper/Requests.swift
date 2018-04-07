@@ -17,8 +17,8 @@ func getTopArtists(completionHandler:@escaping(_ success:Bool, _ allImages:[Stri
     
     let task = session.dataTask(with: request) { (data, response, error) in
         guard error == nil else{
-           // if (error?.localizedDescription as! String) == "The Internet connection appears to be offline."{
-                completionHandler(false,all)
+            // if (error?.localizedDescription as! String) == "The Internet connection appears to be offline."{
+            completionHandler(false,all)
             //}
             return
         }
@@ -62,8 +62,8 @@ func imageDownload(imageUrl:String,completionHandler:@escaping(_ success:Bool,_ 
         if data == nil {
             if (error?.localizedDescription as! String) == "The Internet connection appears to be offline."{
                 completionHandler(false,Data())
-                }
-    
+            }
+            
             return
         }else{
             completionHandler(true,data!)
@@ -76,7 +76,7 @@ func artistDataDownload(artist:String,completionHadler:@escaping(_ success:Bool,
     let session = URLSession.shared
     let updatedArtist = artist.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
     let stringUrl = "https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=\(updatedArtist)&api_key=63bc85712ced4b9c92bed61d2e60441e&format=json"
-
+    
     let request = URLRequest(url:URL(string:stringUrl)!)
     
     let task = session.dataTask(with: request) { (data, response, error) in
@@ -96,12 +96,12 @@ func artistDataDownload(artist:String,completionHadler:@escaping(_ success:Bool,
         if let set1 = parsedResult["artist"] as? [String:AnyObject]{
             
             let result = Artist.init(dictionary: set1)
-
+            
             completionHadler(true,result,false)
         }else{
             completionHadler(true,Artist(dictionary: [:]),true)
         }
-       
+        
         
     }
     task.resume()
@@ -182,7 +182,7 @@ func getSocialHandles(mbid:String,completionHandler:@escaping(_ success:Bool,_ r
     let url = "https://musicbrainz.org/ws/2/artist/\(mbid)?inc=url-rels&fmt=json"
     let session = URLSession.shared
     let request = URLRequest(url:URL(string:url)!)
-
+    
     let task = session.dataTask(with: request) { (data, response, error) in
         
         guard error == nil else{
@@ -200,7 +200,7 @@ func getSocialHandles(mbid:String,completionHandler:@escaping(_ success:Bool,_ r
         }
         if let relations = parsedResult["relations"] as? [Any]{
             for r in relations{
-             
+                
                 if let dict = r as? [String:AnyObject]{
                     if let urlDict = dict["url"] as? [String:AnyObject]{
                         if let urlString = urlDict["resource"] as? String {
@@ -217,12 +217,12 @@ func getSocialHandles(mbid:String,completionHandler:@escaping(_ success:Bool,_ r
                                 result["facebook"] = urlString as AnyObject
                             }
                         }
-                      
+                        
                     }
                     
                 }
             }
-             completionHandler(true,result,false)
+            completionHandler(true,result,false)
         }else{
             completionHandler(false,result,false)
         }
@@ -244,12 +244,12 @@ func searchArtists(search:String, completionHandler:@escaping(_ success:Bool,_ s
             return
         }
         let parsedResult : [String:AnyObject]!
-
+        
         do{
             try parsedResult = JSONSerialization.jsonObject(with: data!, options: .allowFragments) as! [String:AnyObject]
             
         }catch{
-               fatalError("Cannot parse")
+            fatalError("Cannot parse")
         }
         
         if let res = parsedResult["results"] as? [String:AnyObject]{
@@ -270,11 +270,11 @@ func searchArtists(search:String, completionHandler:@escaping(_ success:Bool,_ s
                             }
                         }
                     }
-                      completionHandler(true,result,allLastFmUrls)
+                    completionHandler(true,result,allLastFmUrls)
                 }
             }
         }
-      
+        
     })
     task.resume()
 }

@@ -10,39 +10,11 @@ import UIKit
 import CoreData
 
 class MainViewController: UIViewController,UICollectionViewDelegate,UICollectionViewDataSource,NSFetchedResultsControllerDelegate,UISearchBarDelegate,UITableViewDelegate,UITableViewDataSource {
-    @IBAction func homeButtonTapped(_ sender: Any) {
-        collectionView?.setContentOffset(CGPoint.zero, animated: false)
-        collectionView.isScrollEnabled = false
-     
-        imageCache = NSCache<AnyObject, AnyObject>()
-        DispatchQueue.main.suspend()
-        DispatchQueue.global(qos: .userInitiated).suspend()
-        collectionView.delegate = nil
-        collectionView.dataSource = nil
-      
     
-        imageCache = NSCache<AnyObject, AnyObject>()
-        allArtists = [String:String]()
-        allUrlsLastFm = [String:String]()
- 
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        self.viewDidLoad()
-        collectionView.isScrollEnabled = true
-
-    }
+//-----All Variables
     
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell()
-        cell.textLabel?.text = "Example"
-        return cell
-    }
-    
+    var homeTappedBool:Bool = true
+    @IBOutlet weak var homeButton: UIBarButtonItem!
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var mainLoadingIndicator: UIActivityIndicatorView!
     @IBOutlet weak var noArtistsSavedLabel: UILabel!
@@ -60,65 +32,45 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     var fetchedResultsController:NSFetchedResultsController<Artists>!
     var sendUrl:String = ""
     var allUrlsLastFm = [String:String]()
-    
-    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        searchTableView.frame = CGRect(x: searchTableView.frame.origin.x, y: searchTableView.frame.origin.y, width: searchTableView.frame.size.width, height: searchTableView.contentSize.height)
-        UIView.animate(
-            withDuration: 0.2,
-            delay: 0.0,
-            options: .transitionCurlUp,
-            animations: {
-                self.searchTableView.alpha = 1
-                self.searchTableView.reloadData()
-        }) { (completed) in
-            
-        }
-        
-    }
-    
-    @IBAction func showSavedButtonTapped(_ sender: Any) {
-        if showSavedBool {
-            fetchAllArtists()
-            if allArtists.count == 0 {
-                viewDidLoad()
-            }
-            noArtistsSavedLabel.alpha = 0
-            showSavedBool = false
-            showSavedButton.title = "Show Saved"
-        }else{
-            fetchAllArtists()
-            for d in fetchedResultsController.fetchedObjects! {
-                if d.name == nil {
-                    dataController.viewContext.delete(d)
-                    try? dataController.viewContext.save()
-                }
-            }
-            if fetchedResultsController.fetchedObjects?.count == 0 {
-                noArtistsSavedLabel.alpha = 1
-            }else{
-                collectionView.scrollToItem(at: [0,1], at: .top, animated: false)
-            }
-            
-            showSavedBool = true
-            showSavedButton.title = "Show Latest"
-        }
-        collectionView.reloadData()
-    }
-    
     @IBOutlet weak var showSavedButton: UIBarButtonItem!
-    fileprivate func fetchAllArtists() {
-        let fetchRequest:NSFetchRequest<Artists> = Artists.fetchRequest()
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
-        try? fetchedResultsController.performFetch()
-        
-    }
+    
+//---- Lifecycle Callbacks
+    
     override func viewDidDisappear(_ animated: Bool) {
         fetchedResultsController = nil
     }
     
-    @objc func visibleCollectionViewCellsReload(){
-        collectionView.reloadItems(at: collectionView.indexPathsForVisibleItems)
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        searchTableView.alpha = 0
+        searchTableView.delegate = self
+        searchTableView.dataSource = self
+        searchTableView.bounces = false
+        navigationItem.leftBarButtonItem?.isEnabled = false
+        navigationItem.rightBarButtonItem?.isEnabled = true
+        NotificationCenter.default.addObserver(self, selector: #selector(setupFlowLayout), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(visibleCollectionViewCellsReload), name: .UIApplicationDidBecomeActive, object: nil)
+        searchBar.delegate = self
+        searchBar.placeholder = "Showing Top Artists"
+        DispatchQueue.global(qos: .userInitiated).async {
+            getTopArtists { success , ab in
+                DispatchQueue.main.async {
+                    self.collectionView.delegate = self
+                    self.collectionView.dataSource = self
+                    if success {
+                        self.allArtists = ab
+                        self.collectionView.reloadData()
+                        
+                    }else{
+                        self.showAlert(title: "Unable to Fetch Data", message: "Please Retry Again.")
+                    }
+                    self.mainLoadingIndicator.stopAnimating()
+                }
+                
+            }
+        }
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -142,29 +94,86 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
         
         self.setupFlowLayout()
     }
+    
+//--- Delegates
+    
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = UITableViewCell()
+        cell.textLabel?.text = "Example"
+        return cell
+    }
+    
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchTableView.frame = CGRect(x: searchTableView.frame.origin.x, y: searchTableView.frame.origin.y, width: searchTableView.frame.size.width, height: searchTableView.contentSize.height)
+        UIView.animate(
+            withDuration: 0.2,
+            delay: 0.0,
+            options: .transitionCurlUp,
+            animations: {
+                self.searchTableView.alpha = 1
+                self.searchTableView.reloadData()
+        }) { (completed) in
+            
+        }
+        
+    }
+    
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        if searchBar.text?.count != 0 {
-            collectionView?.setContentOffset(CGPoint.zero, animated: false)
-            let q = searchBar.text!
-            DispatchQueue.global(qos: .userInitiated).async {
-                var search = searchArtists(search: q, completionHandler: {success, res , lastFmUrl in
-                    self.allArtists = res
-                    self.imageCache = NSCache<AnyObject, AnyObject>()
-                    self.allUrlsLastFm = lastFmUrl
-                    DispatchQueue.main.async {
-                        if self.allArtists.count == 0 {
-                            self.noArtistsSavedLabel.alpha = 1
-                            self.collectionView.alpha = 0
-                            self.view.backgroundColor = UIColor.black
-                            self.noArtistsSavedLabel.text = "No Artists Found"
+        var r = navigationItem.leftBarButtonItem?.isEnabled
+        if showSavedBool{
+            if r! {
+                //
+            }else{
+                // Implement Search in Favorites
+                searchBar.text = ""
+                searchBar.placeholder = "Showing Search in Favorites"
+            }
+        }else{
+            if searchBar.text?.count != 0 {
+                self.mainLoadingIndicator.startAnimating()
+                //navigationItem.rightBarButtonItem?.isEnabled = false
+                navigationItem.leftBarButtonItem?.isEnabled = true
+                homeTappedBool = false
+                let q = searchBar.text!
+                searchBar.text = ""
+                searchBar.placeholder = "Showing Results for " + q
+                DispatchQueue.global(qos: .userInitiated).async {
+                    searchArtists(search: q, completionHandler: {success, res , lastFmUrl in
+                        if success {
+                            self.allArtists = res
+                            self.imageCache = NSCache<AnyObject, AnyObject>()
+                            self.allUrlsLastFm = lastFmUrl
+                            DispatchQueue.main.async {
+                                if self.allArtists.count == 0 {
+                                    self.noArtistsSavedLabel.alpha = 1
+                                    self.collectionView.alpha = 0
+                                    self.view.backgroundColor = UIColor.black
+                                    self.noArtistsSavedLabel.text = "No Artists Found"
+                                }else{
+                                    self.noArtistsSavedLabel.alpha = 0
+                                    self.collectionView?.setContentOffset(CGPoint.zero, animated: false)
+                                    self.collectionView.alpha = 1
+                                    self.collectionView.reloadData()
+                                }
+                                self.mainLoadingIndicator.stopAnimating()
+                            }
                         }else{
-                            self.noArtistsSavedLabel.alpha = 0
-                            self.collectionView.alpha = 1
-                            self.collectionView.reloadData()
+                            DispatchQueue.main.async {
+                                self.mainLoadingIndicator.stopAnimating()
+                                self.showAlert(title: "Unable to Search", message: "Please Try Again")
+                            }
                         }
-                    }
-                })
-                
+                    })
+                    
+                }
+            }else{
+                searchBar.text = ""
+                searchBar.placeholder = "Please enter some text"
             }
             
         }
@@ -180,42 +189,139 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
         }) { (completed) in
             
         }
-        
-        
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        //        allUrlsLastFm = [String:String]()
-        //        allArtists = [String:String]()
-        searchTableView.alpha = 0
-        searchTableView.delegate = self
-        searchTableView.dataSource = self
-        searchTableView.bounces = false
-        NotificationCenter.default.addObserver(self, selector: #selector(setupFlowLayout), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(visibleCollectionViewCellsReload), name: .UIApplicationDidBecomeActive, object: nil)
-        searchBar.delegate = self
-        DispatchQueue.global(qos: .userInitiated).async {
-            getTopArtists { success , ab in
-                DispatchQueue.main.async {
+//--- IBAction Functions
+    
+    @IBAction func homeButtonTapped(_ sender: Any) {
+    
+        if !homeTappedBool {
+            if showSavedBool{
+                showSavedBool = false
+                homeButtonTapped(self)
+                noArtistsSavedLabel.alpha = 0
+                navigationItem.rightBarButtonItem?.title = "Show Saved"
+                navigationItem.rightBarButtonItem?.tintColor = UIColor.white
+                return
+            }
+            if collectionView.alpha == 0 {
+                collectionView.alpha = 1
+                noArtistsSavedLabel.alpha = 0
+            }
+            searchBar.text = ""
+            homeTappedBool = true
+            UIView.animate(withDuration: 0.8, delay: 0, options: .transitionFlipFromTop
+                , animations: {
+                    self.collectionView.isScrollEnabled = false
+                    self.imageCache = NSCache<AnyObject, AnyObject>()
+                    DispatchQueue.main.suspend()
+                    DispatchQueue.global(qos: .userInitiated).suspend()
+                    self.self.collectionView.delegate = nil
+                    self.collectionView.dataSource = nil
+                    
+                    
+                    self.imageCache = NSCache<AnyObject, AnyObject>()
+                    self.allArtists = [String:String]()
+                    self.allUrlsLastFm = [String:String]()
+                    
                     self.collectionView.delegate = self
                     self.collectionView.dataSource = self
-                    if success {
-                        self.allArtists = ab
-                        self.collectionView.reloadData()
-                        
-                    }else{
-                        self.showAlert(title: "Unable to Fetch Data", message: "Please Retry Again.")
-                    }
-                    self.mainLoadingIndicator.stopAnimating()
-                }
+                    self.collectionView?.setContentOffset(CGPoint.zero, animated: false)
+                    self.viewDidLoad()
+                    self.collectionView.isScrollEnabled = true
+            }) { (success) in
                 
             }
+            
+        }else{
+            print("print")
+        }
+    }
+
+    @IBAction func showSavedButtonTapped(_ sender: Any) {
+       
+        if self.showSavedBool {
+            self.noArtistsSavedLabel.alpha = 0
+            self.showSavedButton.title = "Show Saved"
+            searchBar.placeholder = "Showing Top Artists"
+            navigationItem.rightBarButtonItem?.tintColor = UIColor.white
+            
+        }else{
+            navigationItem.rightBarButtonItem?.tintColor = UIColor.red
+            self.fetchAllArtists()
+            searchBar.placeholder = ""
+            for d in self.fetchedResultsController.fetchedObjects! {
+                if d.name == nil {
+                    self.dataController.viewContext.delete(d)
+                    try? self.dataController.viewContext.save()
+                }
+            }
+            searchBar.text = ""
+            let count = String(self.fetchedResultsController.fetchedObjects!.count)
+            searchBar.placeholder = "Showing \(count) Favorites"
+            if self.fetchedResultsController.fetchedObjects?.count == 0 {
+                self.noArtistsSavedLabel.alpha = 1
+            }
+
+            //navigationItem.leftBarButtonItem?.isEnabled = true
+            homeTappedBool = false
+            self.showSavedButton.title = "Previous"
+        }
+        
+        UIView.animate(withDuration: 0.8, delay: 0, options: .transitionCurlUp , animations: {
+            if self.showSavedBool {
+                self.fetchAllArtists()
+//                if self.allArtists.count == 0 {
+//                    if self.collectionView.alpha == 0 {
+//                        self.collectionView.alpha = 1
+//                        self.noArtistsSavedLabel.alpha = 0
+//                    }
+//                    self.viewDidLoad()
+//                }
+                self.showSavedBool = false
+                // self.showSavedButton.title = "Show Saved"
+            }else{
+                self.fetchAllArtists()
+                
+                if self.fetchedResultsController.fetchedObjects?.count == 0 {
+                    self.noArtistsSavedLabel.alpha = 1
+                }else{
+                    self.collectionView?.setContentOffset(CGPoint.zero, animated: false)
+                }
+                
+                self.showSavedBool = true
+                // self.showSavedButton.title = "Show Latest"
+            }
+            self.collectionView.reloadData()
+        }) { (success) in
+            
+        }
+        if allArtists.count < 40 {
+            print(allArtists.count)
+            navigationItem.leftBarButtonItem?.isEnabled = true
+        }else{
+            print(allArtists.count)
+            navigationItem.leftBarButtonItem?.isEnabled = false
+        }
+        if allArtists.count == 0 {
+            noArtistsSavedLabel.alpha = 1
         }
         
     }
+
+    fileprivate func fetchAllArtists() {
+        let fetchRequest:NSFetchRequest<Artists> = Artists.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        try? fetchedResultsController.performFetch()
+        
+    }
+ 
     
-    
+    @objc func visibleCollectionViewCellsReload(){
+        collectionView.reloadItems(at: collectionView.indexPathsForVisibleItems)
+    }
+ 
     
     @objc func setupFlowLayout(){ 
         if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight){
@@ -238,7 +344,7 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     
 }
 extension MainViewController{
-    
+//---- CollectionView Delegates
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if showSavedBool{
             return (fetchedResultsController.fetchedObjects?.count)!
@@ -251,7 +357,7 @@ extension MainViewController{
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Artist", for: indexPath) as! ArtistListCell
         
         if showSavedBool{
-            var currentArtist = fetchedResultsController.fetchedObjects![indexPath.row]
+            let currentArtist = fetchedResultsController.fetchedObjects![indexPath.row]
             imageData = currentArtist.image
             artistName = currentArtist.name
             performSegue(withIdentifier: "artistDetail", sender: cell)
@@ -261,7 +367,7 @@ extension MainViewController{
             
             if let imageFromCache = imageCache.object(forKey: array as AnyObject) as? UIImage {
                 imageData = UIImageJPEGRepresentation(imageFromCache, 1)
-                artistName = key as! String
+                artistName = key
                 self.mainLoadingIndicator.startAnimating()
                 collectionView.isUserInteractionEnabled = false
                 DispatchQueue.global(qos: .userInitiated).async {
@@ -398,7 +504,7 @@ extension MainViewController{
                                     print(self.artistName)
                                     if !self.showSavedBool{
                                         if indexPath.row < self.allArtists.count{
-                                        collectionView.reloadItems(at: [indexPath])
+                                            collectionView.reloadItems(at: [indexPath])
                                         }
                                     }
                                 }
@@ -409,6 +515,7 @@ extension MainViewController{
                                 cell.loadingIndicator.stopAnimating()
                                 cell.artistImage.image = #imageLiteral(resourceName: "no_network")
                                 cell.artistImage.backgroundColor = UIColor.white
+                                self.showAlert(title: "Unable to Fetch Data", message: "Please Choose")
                                 cell.isUserInteractionEnabled = false
                             }
                             
@@ -425,6 +532,9 @@ extension MainViewController{
 }
 
 extension MainViewController{
+    
+//--- Other Functions
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier! == "artistDetail"{
             if let detailController = segue.destination as? ArtistDetailViewController{
@@ -447,7 +557,9 @@ extension MainViewController{
             
         }))
         alert.addAction(UIAlertAction(title: "View Saved", style: UIAlertActionStyle.default, handler: {(action) in
+            if !self.showSavedBool{
             self.showSavedButtonTapped(self)
+            }
         }))
         self.present(alert, animated: true, completion: nil)
     }

@@ -119,7 +119,7 @@
                                 <action selector="homeButtonTapped:" destination="BYZ-38-t0r" id="OVy-nh-4QL"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" title="Show Saved" id="Ynt-2E-1RF">
+                        <barButtonItem key="rightBarButtonItem" title="Show Saved" style="plain" id="Ynt-2E-1RF">
                             <connections>
                                 <action selector="showSavedButtonTapped:" destination="BYZ-38-t0r" id="k9L-D9-cxK"/>
                             </connections>
@@ -129,6 +129,7 @@
                     <connections>
                         <outlet property="collectionView" destination="gwX-Lp-adM" id="lgj-Ui-cHy"/>
                         <outlet property="flowLayout" destination="1GQ-sc-BVK" id="RXg-Oe-n30"/>
+                        <outlet property="homeButton" destination="6Kr-WO-9MO" id="3x0-y1-pfZ"/>
                         <outlet property="mainLoadingIndicator" destination="3TN-b1-wMO" id="oaQ-2e-LHb"/>
                         <outlet property="noArtistsSavedLabel" destination="IGr-Qc-3pG" id="6JA-rU-2Mk"/>
                         <outlet property="searchBar" destination="RcG-Ec-xzN" id="U8K-ix-MOp"/>

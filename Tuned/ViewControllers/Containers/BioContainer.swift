@@ -19,7 +19,7 @@ class BioContainer:UIViewController{
         bioLabelTextView.isEditable = false
         bioLabelTextView.dataDetectorTypes = .link
         bioLabelTextView.isSelectable = true
-        bioLabelTextView.text = bioLabelText    
+        bioLabelTextView.text = bioLabelText
     }
     
 }

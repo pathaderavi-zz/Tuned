@@ -11,7 +11,7 @@ import CoreData
 
 class MainViewController: UIViewController,UICollectionViewDelegate,UICollectionViewDataSource,NSFetchedResultsControllerDelegate,UISearchBarDelegate,UITableViewDelegate,UITableViewDataSource {
     
-//-----All Variables
+    //-----All Variables
     
     var homeTappedBool:Bool = true
     @IBOutlet weak var homeButton: UIBarButtonItem!
@@ -34,7 +34,7 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     var allUrlsLastFm = [String:String]()
     @IBOutlet weak var showSavedButton: UIBarButtonItem!
     
-//---- Lifecycle Callbacks
+    //---- Lifecycle Callbacks
     
     override func viewDidDisappear(_ animated: Bool) {
         fetchedResultsController = nil
@@ -52,6 +52,7 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
         NotificationCenter.default.addObserver(self, selector: #selector(setupFlowLayout), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(visibleCollectionViewCellsReload), name: .UIApplicationDidBecomeActive, object: nil)
         searchBar.delegate = self
+        searchBar.setValue("Show All", forKey:"_cancelButtonText")
         searchBar.placeholder = "Showing Top Artists"
         DispatchQueue.global(qos: .userInitiated).async {
             getTopArtists { success , ab in
@@ -95,7 +96,7 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
         self.setupFlowLayout()
     }
     
-//--- Delegates
+    //--- Delegates
     
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -107,7 +108,16 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
         cell.textLabel?.text = "Example"
         return cell
     }
-    
+    var inss:Int = 0
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        if searchBar.text == "" {
+            inss += 1
+            print(inss)
+            self.searchBar.resignFirstResponder()
+        }
+        
+    }
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         searchTableView.frame = CGRect(x: searchTableView.frame.origin.x, y: searchTableView.frame.origin.y, width: searchTableView.frame.size.width, height: searchTableView.contentSize.height)
         UIView.animate(
@@ -120,20 +130,39 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
         }) { (completed) in
             
         }
+        if showSavedBool{
+            
+        }
         
     }
     
+    var prevFetch = false
+    var goHome = false
+    var searchStringFav:String!
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        var r = navigationItem.leftBarButtonItem?.isEnabled
         if showSavedBool{
-            if r! {
-                //
+            //Search Saved
+            if searchBar.text?.count != 0 {
+                prevFetch = true
+                if prevFetch{
+                    homeButton.isEnabled = true
+                    searchStringFav = searchBar.text
+                    fetchAllArtists()
+                    prevFetch = false
+                    goHome = true
+                    if fetchedResultsController.fetchedObjects?.count == 0 {
+                        self.noArtistsSavedLabel.text = "No Artists Found"
+                        self.noArtistsSavedLabel.alpha = 1
+                    }else{
+                        self.noArtistsSavedLabel.alpha = 0
+                    }
+                    collectionView.reloadData()
+                }
             }else{
-                // Implement Search in Favorites
-                searchBar.text = ""
-                searchBar.placeholder = "Showing Search in Favorites"
+                
             }
         }else{
+            print("search online")
             if searchBar.text?.count != 0 {
                 self.mainLoadingIndicator.startAnimating()
                 //navigationItem.rightBarButtonItem?.isEnabled = false
@@ -190,11 +219,17 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
             
         }
     }
-    
-//--- IBAction Functions
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        
+        searchBar.resignFirstResponder()
+        if showSavedBool{
+            print("Show All Favorites")
+        }
+    }
+    //--- IBAction Functions
     
     @IBAction func homeButtonTapped(_ sender: Any) {
-    
+        
         if !homeTappedBool {
             if showSavedBool{
                 showSavedBool = false
@@ -237,15 +272,30 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
             print("print")
         }
     }
-
+    
     @IBAction func showSavedButtonTapped(_ sender: Any) {
-       
+        //another boolean
+        if goHome{
+            fetchAllArtists()
+            goHome = false
+            showSavedBool = false
+            if fetchedResultsController.fetchedObjects?.count == 0 {
+                self.noArtistsSavedLabel.text = "No Artists Found"
+                self.noArtistsSavedLabel.alpha = 1
+            }else{
+                self.noArtistsSavedLabel.alpha = 0
+            }
+            showSavedButtonTapped(self)
+            return
+        }
+        
         if self.showSavedBool {
             self.noArtistsSavedLabel.alpha = 0
             self.showSavedButton.title = "Show Saved"
-            searchBar.placeholder = "Showing Top Artists"
+            searchBar.placeholder = "Search Here"
             navigationItem.rightBarButtonItem?.tintColor = UIColor.white
             
+            //
         }else{
             navigationItem.rightBarButtonItem?.tintColor = UIColor.red
             self.fetchAllArtists()
@@ -260,9 +310,10 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
             let count = String(self.fetchedResultsController.fetchedObjects!.count)
             searchBar.placeholder = "Showing \(count) Favorites"
             if self.fetchedResultsController.fetchedObjects?.count == 0 {
+                self.noArtistsSavedLabel.text = "No Artists Saved"
                 self.noArtistsSavedLabel.alpha = 1
             }
-
+            
             //navigationItem.leftBarButtonItem?.isEnabled = true
             homeTappedBool = false
             self.showSavedButton.title = "Previous"
@@ -271,13 +322,13 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
         UIView.animate(withDuration: 0.8, delay: 0, options: .transitionCurlUp , animations: {
             if self.showSavedBool {
                 self.fetchAllArtists()
-//                if self.allArtists.count == 0 {
-//                    if self.collectionView.alpha == 0 {
-//                        self.collectionView.alpha = 1
-//                        self.noArtistsSavedLabel.alpha = 0
-//                    }
-//                    self.viewDidLoad()
-//                }
+                //                if self.allArtists.count == 0 {
+                //                    if self.collectionView.alpha == 0 {
+                //                        self.collectionView.alpha = 1
+                //                        self.noArtistsSavedLabel.alpha = 0
+                //                    }
+                //                    self.viewDidLoad()
+                //                }
                 self.showSavedBool = false
                 // self.showSavedButton.title = "Show Saved"
             }else{
@@ -304,24 +355,38 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
             navigationItem.leftBarButtonItem?.isEnabled = false
         }
         if allArtists.count == 0 {
+            if !showSavedBool{
+                self.noArtistsSavedLabel.text = "No Artists Found"
+            }
             noArtistsSavedLabel.alpha = 1
         }
         
     }
-
+    
     fileprivate func fetchAllArtists() {
         let fetchRequest:NSFetchRequest<Artists> = Artists.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        //var searchAsked = true
+                if prevFetch {
+                    let words = searchStringFav.components(separatedBy: " ")
+                    var predicateArray = [NSPredicate]()
+                    for word in words {
+                        let predicate = NSPredicate(format: "(name contains[cd] %@)", word)
+                        predicateArray.append(predicate)
+                    }
+                    fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates:predicateArray)
+                    //searchAsked = false
+                }
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
         try? fetchedResultsController.performFetch()
         
     }
- 
+    
     
     @objc func visibleCollectionViewCellsReload(){
         collectionView.reloadItems(at: collectionView.indexPathsForVisibleItems)
     }
- 
+    
     
     @objc func setupFlowLayout(){ 
         if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight){
@@ -344,7 +409,7 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     
 }
 extension MainViewController{
-//---- CollectionView Delegates
+    //---- CollectionView Delegates
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if showSavedBool{
             return (fetchedResultsController.fetchedObjects?.count)!
@@ -533,7 +598,7 @@ extension MainViewController{
 
 extension MainViewController{
     
-//--- Other Functions
+    //--- Other Functions
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier! == "artistDetail"{
@@ -558,7 +623,7 @@ extension MainViewController{
         }))
         alert.addAction(UIAlertAction(title: "View Saved", style: UIAlertActionStyle.default, handler: {(action) in
             if !self.showSavedBool{
-            self.showSavedButtonTapped(self)
+                self.showSavedButtonTapped(self)
             }
         }))
         self.present(alert, animated: true, completion: nil)

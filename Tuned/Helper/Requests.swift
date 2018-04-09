@@ -42,6 +42,15 @@ func getTopArtists(completionHandler:@escaping(_ success:Bool, _ allImages:[Stri
                                     }
                                     
                                 }
+//                                if UIDevice.current.userInterfaceIdiom == .pad || UIDevice.current.userInterfaceIdiom == .unspecified {
+//                                    if medium == "extralarge" {
+//                                        if let name = a["name"] as! String? {
+//                                            if let imageUrl = b1["#text"] as! String?{
+//                                                all[name as String] = imageUrl as String
+//                                            }
+//                                        }
+//                                    }
+//                                }
                             }
                         }
                     }
@@ -268,6 +277,15 @@ func searchArtists(search:String, completionHandler:@escaping(_ success:Bool,_ s
                                             allLastFmUrls[name] = a["url"] as? String
                                         }
                                     }
+//                                    if UIDevice.current.userInterfaceIdiom == .pad || UIDevice.current.userInterfaceIdiom == .unspecified {
+//                                        if i["size"] as? String == "extralarge" {
+//                                            let u = (i["#text"] as? String) != ""
+//                                            if u {
+//                                                result[name] = i["#text"] as? String
+//                                                allLastFmUrls[name] = a["url"] as? String
+//                                            }
+//                                        }
+//                                    }
                                 }
                             }
                         }

@@ -31,6 +31,7 @@ class TracksContainer:UIViewController, UITableViewDataSource, UITableViewDelega
         var cell = tableVIew.dequeueReusableCell(withIdentifier: "cellTracks") as! UITableViewCell
         cell.textLabel?.textColor = UIColor.white
         cell.textLabel?.text = allTracks[indexPath.row]
+        cell.layoutMargins = .zero
         print(allTracks[indexPath.row])
         cell.selectionStyle = UITableViewCellSelectionStyle.none
         return cell
@@ -45,6 +46,7 @@ class TracksContainer:UIViewController, UITableViewDataSource, UITableViewDelega
         tableVIew.dataSource = self
         tableVIew.tableFooterView = UIView()
         tableVIew.bounces = false
+
         tableVIew.indicatorStyle = .white
         tableVIew.reloadData()
     }

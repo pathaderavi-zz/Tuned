@@ -20,6 +20,8 @@ class BioContainer:UIViewController{
         bioLabelTextView.dataDetectorTypes = .link
         bioLabelTextView.isSelectable = true
         bioLabelTextView.text = bioLabelText
+        //bioLabelTextView.attributedText = lastFmUrl
+        print(lastFmUrl)
     }
     
 }

@@ -46,6 +46,9 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     var fetchedTracksController:NSFetchedResultsController<Tracks>!
     var fetchedSocialsController:NSFetchedResultsController<Socials>!
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
     
     override func viewDidDisappear(_ animated: Bool) {
         fetchedResultController = nil
@@ -74,19 +77,51 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     }
     @objc func visibleCollectionViewCellsReload(){
         if !UserDefaults.standard.bool(forKey: "incoming"){
-            print("goback")
             self.navigationController?.popViewController(animated: true)
             UserDefaults.standard.set(true, forKey: "incoming")
         }
     }
+    override func viewDidLayoutSubviews() {
+        activateBorder(button: bioButton)
+        if fetchedResultController.fetchedObjects?.count != 0 {
+            if let result = fetchedResultController.fetchedObjects?[0] {
+                currentArtist = Artist(dictionary: [String:AnyObject].init())
+                currentArtist.bioContent = result.bio!
+                currentArtist.name = result.name!
+                currentArtist.mbid = result.mbid!
+                currentArtist.onTour = result.ontour!
+                mbidStatus = (currentArtist.mbid == "")
+                let controller = self.storyboard!.instantiateViewController(withIdentifier: "bioContainer") as! BioContainer
+                if result.ontour == "0"{
+                    self.onTour.isHidden = true
+                }else{
+                    self.onTour.isHidden = false
+                }
+                controller.bioLabelText = currentArtist.bioContent
+                controller.lastFmUrl = NSMutableAttributedString(string:result.bio!)
+                self.c2.addSubview(controller.view)
+            }
+            loadingIndicator.stopAnimating()
+            enableButtons()
+        }
+        
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+   
         fetchArtist()
         setupFavButton()
         disableButtons()
         NotificationCenter.default.addObserver(self, selector: #selector(visibleCollectionViewCellsReload), name: .UIApplicationDidBecomeActive, object: nil)
         tracksController = self.storyboard!.instantiateViewController(withIdentifier: "tracksContainer") as! TracksContainer
         eventsController = self.storyboard?.instantiateViewController(withIdentifier: "eventsContainer") as! EventsContainer
+        if(UIDevice.current.orientation == .portrait  || UIDevice.current.orientation == .portraitUpsideDown || (UIDevice.current.orientation == .faceUp)){
+            imageView.contentMode = .scaleAspectFit
+        }else{
+            imageView.contentMode = .scaleAspectFill
+        }
         scrollView.bounces = false
         scrollView.delegate = self
         self.navigationItem.title = artistName
@@ -113,7 +148,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                 }else{
                     self.onTour.isHidden = false
                 }
-                controller.bioLabelText = result.bio
+                //controller.bioLabelText = currentArtist.bioContent
                 controller.lastFmUrl = NSMutableAttributedString(string:result.bio!)
                 self.c2.addSubview(controller.view)
             }
@@ -148,7 +183,6 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                         }
                         
                         getTopTracks(artistName: self.artistName, completionHandler: { (success, result) in
-                            print("getTopTracks")
                             if success {
                                 self.fetchTracks = result
                             }else{
@@ -156,7 +190,6 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                             }
                         })
                         getSocialHandles(mbid: artist.mbid) { (success, result, error) in
-                            print("getSocialHandles")
                             if success{
                                 DispatchQueue.main.async {
                                     self.enableButtons()
@@ -293,9 +326,13 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     }
     
     @objc func imageFit(){
-        
-        if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight){
-            imageView.contentMode = UIViewContentMode.scaleAspectFit
+        let iPad = ( UIDevice.current.userInterfaceIdiom == .pad || UIDevice.current.userInterfaceIdiom == .unspecified)
+        if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight || (UIDevice.current.orientation == .portraitUpsideDown)){
+            if iPad{
+                imageView.contentMode = UIViewContentMode.scaleAspectFit
+            }else{
+                imageView.contentMode = UIViewContentMode.scaleAspectFit
+            }
             if activeContainer == 1 {
                 activateBorder(button: bioButton)
             }else if activeContainer == 2 {
@@ -304,9 +341,15 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                 activateBorder(button: eventsButton)
             }
             
-        }else if(UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown){
-            imageView.contentMode = UIViewContentMode.scaleAspectFill
+        }else if(UIDevice.current.orientation == .portrait  || UIDevice.current.orientation == .portraitUpsideDown ){
+            if iPad{
+                imageView.contentMode = UIViewContentMode.scaleAspectFit
+            }else{
+                imageView.contentMode = UIViewContentMode.scaleAspectFill
+            }
+            
         }
+        
     }
     
     @IBOutlet weak var eventsButton: UIButton!
@@ -522,9 +565,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                     print(e.localizedDescription)
                 }
             }
-            print(artistName)
             if !mbidStatus{
-                print(mbidStatus)
                 for event in fetchEvents{
                     self.events = Events(context:self.dataController.viewContext)
                     self.events.name = event.key
@@ -677,7 +718,7 @@ extension ArtistDetailViewController{
                     UIApplication.shared.open(URL(string:self.artistUrlFromMain)!, options: [:] , completionHandler: { (success) in
                         
                     })
-                     self.navigationController?.popViewController(animated: true)
+                    self.navigationController?.popViewController(animated: true)
                 }))}
             self.present(alert, animated: true, completion: nil)
         }

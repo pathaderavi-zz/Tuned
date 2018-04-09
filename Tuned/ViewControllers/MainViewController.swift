@@ -39,10 +39,13 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     override func viewDidDisappear(_ animated: Bool) {
         fetchedResultsController = nil
     }
-    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        print(UIColor.red)
+        self.navigationItem.title = "Tunies"
         searchTableView.alpha = 0
         searchTableView.delegate = self
         searchTableView.dataSource = self
@@ -408,23 +411,47 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     }
     
     
-    @objc func setupFlowLayout(){ 
-        if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight){
-            let space:CGFloat = 3.0
-            let dimension = (view.frame.size.width - (2 * space)) / 3.0
+    @objc func setupFlowLayout(){
+        let iPad = (UIDevice.current.userInterfaceIdiom == .pad) || (UIDevice.current.userInterfaceIdiom == .unspecified)
+        let faceUp = (UIDevice.current.orientation == .faceDown)
+        if iPad /*&& !faceUp*/{
+//            if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight){
+//                
+//                let space:CGFloat = 4.0
+//                let dimension = (view.frame.size.width) / 3.0
+//                let dimenHeight = (view.frame.size.height) / 2.5
+//                flowLayout.minimumInteritemSpacing = 0
+//                flowLayout.minimumLineSpacing = 0
+//                flowLayout.itemSize = CGSize(width: dimension, height: dimenHeight)
+//            }else if(UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown) {
+//                
+//                
+//                let space:CGFloat = 3.0
+//                let dimension = (UIScreen.main.bounds.width) / 3.0
+//                let dimenHeight = (UIScreen.main.bounds.height) / 4
+//                flowLayout.minimumInteritemSpacing = 0
+//                flowLayout.minimumLineSpacing = 0
+//                flowLayout.itemSize = CGSize(width: dimension, height: dimenHeight)
+//            }
             
-            flowLayout.minimumInteritemSpacing = space
-            flowLayout.minimumLineSpacing = space
-            flowLayout.itemSize = CGSize(width: dimension, height: dimension*1.6)
-        }else if(UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown){
-            let space:CGFloat = 3.0
-            let dimension = (view.frame.size.width - (2 * space)) / 2.0
+        }else{
+            if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight){
+                let space:CGFloat = 3.0
+                let dimension = (view.frame.size.width - (2 * space)) / 3.0
+                
+                flowLayout.minimumInteritemSpacing = space
+                flowLayout.minimumLineSpacing = space
+                flowLayout.itemSize = CGSize(width: dimension, height: dimension*1.6)
+            }else if(UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown){
+                let space:CGFloat = 3.0
+                let dimension = (view.frame.size.width - (2 * space)) / 2.0
+                
+                flowLayout.minimumInteritemSpacing = space
+                flowLayout.minimumLineSpacing = space
+                flowLayout.itemSize = CGSize(width: dimension, height: dimension*1.60)
+            }
             
-            flowLayout.minimumInteritemSpacing = space
-            flowLayout.minimumLineSpacing = space
-            flowLayout.itemSize = CGSize(width: dimension, height: dimension*1.60)
-        } 
-        
+        }
     }
     
 }

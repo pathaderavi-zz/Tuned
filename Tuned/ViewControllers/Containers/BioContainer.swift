@@ -19,9 +19,9 @@ class BioContainer:UIViewController{
         bioLabelTextView.isEditable = false
         bioLabelTextView.dataDetectorTypes = .link
         bioLabelTextView.isSelectable = true
-        bioLabelTextView.text = bioLabelText
-        //bioLabelTextView.attributedText = lastFmUrl
-        print(lastFmUrl)
+       
     }
-    
+    override func viewDidLayoutSubviews() {
+        bioLabelTextView.text = bioLabelText
+    }
 }

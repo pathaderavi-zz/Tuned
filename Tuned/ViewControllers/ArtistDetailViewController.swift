@@ -83,34 +83,9 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     }
     override func viewDidLayoutSubviews() {
         activateBorder(button: bioButton)
-        if fetchedResultController.fetchedObjects?.count != 0 {
-            if let result = fetchedResultController.fetchedObjects?[0] {
-                currentArtist = Artist(dictionary: [String:AnyObject].init())
-                currentArtist.bioContent = result.bio!
-                currentArtist.name = result.name!
-                currentArtist.mbid = result.mbid!
-                currentArtist.onTour = result.ontour!
-                mbidStatus = (currentArtist.mbid == "")
-                let controller = self.storyboard!.instantiateViewController(withIdentifier: "bioContainer") as! BioContainer
-                if result.ontour == "0"{
-                    self.onTour.isHidden = true
-                }else{
-                    self.onTour.isHidden = false
-                }
-                controller.bioLabelText = currentArtist.bioContent
-                controller.lastFmUrl = NSMutableAttributedString(string:result.bio!)
-                self.c2.addSubview(controller.view)
-            }
-            loadingIndicator.stopAnimating()
-            enableButtons()
-        }
-        
     }
-
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-   
         fetchArtist()
         setupFavButton()
         disableButtons()
@@ -148,9 +123,12 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                 }else{
                     self.onTour.isHidden = false
                 }
-                //controller.bioLabelText = currentArtist.bioContent
+                controller.bioLabelText = currentArtist.bioContent
                 controller.lastFmUrl = NSMutableAttributedString(string:result.bio!)
-                self.c2.addSubview(controller.view)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    self.c2.addSubview(controller.view)
+                }
+        
             }
             loadingIndicator.stopAnimating()
             enableButtons()

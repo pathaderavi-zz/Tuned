@@ -45,11 +45,11 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     var fetchedEventsController:NSFetchedResultsController<Events>!
     var fetchedTracksController:NSFetchedResultsController<Tracks>!
     var fetchedSocialsController:NSFetchedResultsController<Socials>!
-    
+    var borderBool:Bool = false
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-    
+
     override func viewDidDisappear(_ animated: Bool) {
         fetchedResultController = nil
         super.viewDidDisappear(animated)
@@ -82,7 +82,10 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
         }
     }
     override func viewDidLayoutSubviews() {
+        if !borderBool{
         activateBorder(button: bioButton)
+            borderBool = true
+        }
     }
     override func viewDidLoad() {
         super.viewDidLoad()

@@ -15,11 +15,11 @@ class BioContainer:UIViewController{
     @IBOutlet weak var bioLabelTextView: UITextView!
     var lastFmUrl:NSMutableAttributedString!
     override func viewDidLoad() {
-      
+        
         bioLabelTextView.isEditable = false
         bioLabelTextView.dataDetectorTypes = .link
         bioLabelTextView.isSelectable = true
-       
+        
     }
     override func viewDidLayoutSubviews() {
         bioLabelTextView.text = bioLabelText

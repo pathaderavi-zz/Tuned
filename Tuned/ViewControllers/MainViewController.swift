@@ -33,7 +33,7 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     var sendUrl:String = ""
     var allUrlsLastFm = [String:String]()
     @IBOutlet weak var showSavedButton: UIBarButtonItem!
-    
+    var tappedArtist:Artist!
     //---- Lifecycle Callbacks
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -44,7 +44,6 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        print(UIColor.red)
         self.navigationItem.title = "Tunies"
         searchTableView.alpha = 0
         searchTableView.delegate = self
@@ -415,24 +414,24 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
         let iPad = (UIDevice.current.userInterfaceIdiom == .pad) || (UIDevice.current.userInterfaceIdiom == .unspecified)
         let faceUp = (UIDevice.current.orientation == .faceDown)
         if iPad /*&& !faceUp*/{
-//            if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight){
-//                
-//                let space:CGFloat = 4.0
-//                let dimension = (view.frame.size.width) / 3.0
-//                let dimenHeight = (view.frame.size.height) / 2.5
-//                flowLayout.minimumInteritemSpacing = 0
-//                flowLayout.minimumLineSpacing = 0
-//                flowLayout.itemSize = CGSize(width: dimension, height: dimenHeight)
-//            }else if(UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown) {
-//                
-//                
-//                let space:CGFloat = 3.0
-//                let dimension = (UIScreen.main.bounds.width) / 3.0
-//                let dimenHeight = (UIScreen.main.bounds.height) / 4
-//                flowLayout.minimumInteritemSpacing = 0
-//                flowLayout.minimumLineSpacing = 0
-//                flowLayout.itemSize = CGSize(width: dimension, height: dimenHeight)
-//            }
+            //            if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight){
+            //                
+            //                let space:CGFloat = 4.0
+            //                let dimension = (view.frame.size.width) / 3.0
+            //                let dimenHeight = (view.frame.size.height) / 2.5
+            //                flowLayout.minimumInteritemSpacing = 0
+            //                flowLayout.minimumLineSpacing = 0
+            //                flowLayout.itemSize = CGSize(width: dimension, height: dimenHeight)
+            //            }else if(UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown) {
+            //                
+            //                
+            //                let space:CGFloat = 3.0
+            //                let dimension = (UIScreen.main.bounds.width) / 3.0
+            //                let dimenHeight = (UIScreen.main.bounds.height) / 4
+            //                flowLayout.minimumInteritemSpacing = 0
+            //                flowLayout.minimumLineSpacing = 0
+            //                flowLayout.itemSize = CGSize(width: dimension, height: dimenHeight)
+            //            }
             
         }else{
             if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight){
@@ -488,7 +487,7 @@ extension MainViewController{
                         artistDataDownload(artist: self.artistName, completionHadler: { (success, artist, notAble) in
                             
                             if !success {
-                                let alert = UIAlertController(title: "title", message: "message", preferredStyle: UIAlertControllerStyle.alert)
+                               let alert = UIAlertController(title: "Unable to Connect", message: "Please check your internet Connection and try again.", preferredStyle: UIAlertControllerStyle.alert)
                                 alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.default, handler: {(action) in
                                     alert.dismiss(animated: true, completion: nil)
                                 }))
@@ -513,6 +512,7 @@ extension MainViewController{
                                 return
                             }
                             if success{
+                                self.tappedArtist = artist
                                 DispatchQueue.main.async {
                                     self.performSegue(withIdentifier: "artistDetail", sender: cell)
                                 }
@@ -527,7 +527,7 @@ extension MainViewController{
                         
                         artistDataDownload(artist: self.artistName, completionHadler: { (success, artist, notAble) in
                             if !success {
-                                let alert = UIAlertController(title: "title", message: "message", preferredStyle: UIAlertControllerStyle.alert)
+                                let alert = UIAlertController(title: "Unable to Connect", message: "Please check your internet Connection and try again.", preferredStyle: UIAlertControllerStyle.alert)
                                 alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.default, handler: {(action) in
                                     alert.dismiss(animated: true, completion: nil)
                                 }))
@@ -552,6 +552,7 @@ extension MainViewController{
                                 return
                             }
                             if success{
+                                self.tappedArtist = artist
                                 DispatchQueue.main.async {
                                     self.performSegue(withIdentifier: "artistDetail", sender: cell)
                                 }
@@ -651,6 +652,7 @@ extension MainViewController{
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier! == "artistDetail"{
             if let detailController = segue.destination as? ArtistDetailViewController{
+                detailController.currentArtist = tappedArtist
                 detailController.artistName = artistName
                 detailController.imageData = imageData
                 detailController.dataController = dataController

@@ -42,15 +42,15 @@ func getTopArtists(completionHandler:@escaping(_ success:Bool, _ allImages:[Stri
                                     }
                                     
                                 }
-//                                if UIDevice.current.userInterfaceIdiom == .pad || UIDevice.current.userInterfaceIdiom == .unspecified {
-//                                    if medium == "extralarge" {
-//                                        if let name = a["name"] as! String? {
-//                                            if let imageUrl = b1["#text"] as! String?{
-//                                                all[name as String] = imageUrl as String
-//                                            }
-//                                        }
-//                                    }
-//                                }
+                                //                                if UIDevice.current.userInterfaceIdiom == .pad || UIDevice.current.userInterfaceIdiom == .unspecified {
+                                //                                    if medium == "extralarge" {
+                                //                                        if let name = a["name"] as! String? {
+                                //                                            if let imageUrl = b1["#text"] as! String?{
+                                //                                                all[name as String] = imageUrl as String
+                                //                                            }
+                                //                                        }
+                                //                                    }
+                                //                                }
                             }
                         }
                     }
@@ -277,15 +277,15 @@ func searchArtists(search:String, completionHandler:@escaping(_ success:Bool,_ s
                                             allLastFmUrls[name] = a["url"] as? String
                                         }
                                     }
-//                                    if UIDevice.current.userInterfaceIdiom == .pad || UIDevice.current.userInterfaceIdiom == .unspecified {
-//                                        if i["size"] as? String == "extralarge" {
-//                                            let u = (i["#text"] as? String) != ""
-//                                            if u {
-//                                                result[name] = i["#text"] as? String
-//                                                allLastFmUrls[name] = a["url"] as? String
-//                                            }
-//                                        }
-//                                    }
+                                    //                                    if UIDevice.current.userInterfaceIdiom == .pad || UIDevice.current.userInterfaceIdiom == .unspecified {
+                                    //                                        if i["size"] as? String == "extralarge" {
+                                    //                                            let u = (i["#text"] as? String) != ""
+                                    //                                            if u {
+                                    //                                                result[name] = i["#text"] as? String
+                                    //                                                allLastFmUrls[name] = a["url"] as? String
+                                    //                                            }
+                                    //                                        }
+                                    //                                    }
                                 }
                             }
                         }
@@ -299,5 +299,207 @@ func searchArtists(search:String, completionHandler:@escaping(_ success:Bool,_ s
     task.resume()
 }
 
+let SONGKICK_API_KEY:String = "YOUR_SONGKICK_API_KEY"
+let locationKey = "location"
+let urlKey = "url"
+let venueName = "venuename"
+
+func getSongKickEvents(mbid:String,name:String,completionHandler:@escaping(_ success:Bool,_ events:[[String:AnyObject]])->Void){
+    let session = URLSession.shared
+    let updatedName = name.replacingOccurrences(of: " " , with: "+")
+    let updatedArtist = updatedName.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
+    var url:String = ""
+    if mbid != "" {
+        url = "https://api.songkick.com/api/3.0/artists/mbid:\(mbid)/calendar.json?apikey=\(SONGKICK_API_KEY)"
+    }else{
+        url = "https://api.songkick.com/api/3.0/search/artists.json?apikey=\(SONGKICK_API_KEY)&query=\(updatedArtist)"
+    }
+    var result = [String:AnyObject]()
+    var finalResult = [[String:AnyObject]]()
+    let request = URLRequest(url:URL(string:url)!)
+    
+    let task = session.dataTask(with: request) { (data, response, error) in
+        guard error == nil else{
+            completionHandler(false,finalResult)
+            return
+        }
+        let parsedResult:[String:AnyObject]!
+        
+        do {
+            parsedResult = try JSONSerialization.jsonObject(with: data!, options: .allowFragments) as! [String:AnyObject]
+            
+        }catch {
+            fatalError()
+        }
+        //AgeRestriction,Location,URL, VenueName
+        //Trim Event Displaly Name
+        if let resultsPage = parsedResult["resultsPage"] as? [String:AnyObject]{
+            if let results = resultsPage["results"] as? [String:AnyObject]{
+                if let event = results["event"] as? [[String:AnyObject]] {
+                    for e in event{
+                        if let eventName = e["ageRestriction"] as? Bool{
+                            result["agerestriction"] = eventName as AnyObject
+                        }else{
+                            result["agerestriction"] = nil
+                        }
+                        if let event_uri = e["uri"] as? String{
+                            result["uri"] = event_uri as AnyObject
+                        }
+                        if let event_start = e["start"] as? [String:AnyObject]{
+                            let dateFormatter = DateFormatter()
+                            if let event_date = event_start["datetime"] as? String{
+                                dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+                                let date = dateFormatter.date(from: event_date)!
+                                result["date"] = date as AnyObject
+                            }else if let event_date = event_start["date"] as? String{
+                                dateFormatter.dateFormat = "yyyy-MM-dd"
+                                let date = dateFormatter.date(from: event_date)!
+                                result["date"] = date as AnyObject
+                            }
+                            
+                        }
+                        if let location = e["location"] as? [String:AnyObject]{
+                            if let cityName = location["city"] as? String{
+                                result["location"] = cityName as AnyObject
+                            }
+                        }
+                        
+                        if let venue = e["venue"] as? [String:AnyObject]{
+                            if let lat = venue["lat"] as? Double{
+                                result["lat"] = lat as AnyObject
+                            }
+                            if let lng = venue["lng"] as? Double{
+                                result["lng"] = lng as AnyObject
+                            }
+                            if let displayName = venue["displayName"] as? String{
+                                result["venue"] = displayName as AnyObject
+                            }
+                        }
+                        finalResult.append(result)
+                    }
+                    completionHandler(true,finalResult)
+                }else if  let artistResult = results["artist"] as? [[String:AnyObject]] {
+                    var searchArtist = [String]()
+                    for a in artistResult {
+                        if let identifier = a["identifier"] as? [AnyObject]{
+                            for i in identifier {
+                                if let mbid2 = i["mbid"] as? String{
+                                    searchArtist.append(mbid2)
+                                }
+                            }
+                            
+                        }
+                    }
+                }
+            }
+        }
+        if finalResult.count == 0  {
+            if finalResult.count == 0  {
+                url = "https://api.songkick.com/api/3.0/search/artists.json?apikey=\(SONGKICK_API_KEY)&query=\(updatedArtist)"
+                let request2 = URLRequest(url:URL(string:url)!)
+                let task2 = session.dataTask(with: request2) { (data2, response2, error2) in
+                    guard error2 == nil else{
+                        completionHandler(false,finalResult)
+                        return
+                    }
+                    let parsedResult2:[String:AnyObject]!
+                    
+                    do {
+                        parsedResult2 = try JSONSerialization.jsonObject(with: data2!, options: .allowFragments) as! [String:AnyObject]
+                    }catch {
+                        fatalError()
+                    }
+                    var searchArtist = [String]()
+                    if let r1 = parsedResult2["resultsPage"] as? [String:AnyObject]{
+                        if let r2 = r1["results"] as? [String:AnyObject]{
+                            if let resultsPageFirst = r2["artist"] as? [[String:AnyObject]]{
+                                for a in resultsPageFirst {
+                                    if let skId = a["id"] as? Int {
+                                        let url3 = "https://api.songkick.com/api/3.0/artists/\(skId)/calendar.json?apikey=\(SONGKICK_API_KEY)"
+                                        let request3 = URLRequest(url:URL(string:url3)!)
+                                        let task3 = session.dataTask(with: request3, completionHandler: { (data3, response3, error3) in
+                                            guard error3 == nil else{
+                                                completionHandler(false,finalResult)
+                                                return
+                                            }
+                                            let parsedResult3:[String:AnyObject]!
+                                            
+                                            do {
+                                                parsedResult3 = try JSONSerialization.jsonObject(with: data3!, options: .allowFragments) as! [String:AnyObject]
+                                            }catch {
+                                                fatalError()
+                                            }
+                                            
+                                            if let resultsPage = parsedResult3["resultsPage"] as? [String:AnyObject]{
+                                                
+                                                if let results = resultsPage["results"] as? [String:AnyObject]{
+                                                    if let event = results["event"] as? [[String:AnyObject]] {
+                                                        for e in event{
+                                                            if let eventName = e["ageRestriction"] as? Bool{
+                                                                result["agerestriction"] = eventName as AnyObject
+                                                            }else{
+                                                                result["agerestriction"] = nil
+                                                            }
+                                                            if let event_uri = e["uri"] as? String{
+                                                                result["uri"] = event_uri as AnyObject
+                                                            }
+                                                            if let event_start = e["start"] as? [String:AnyObject]{
+                                                                let dateFormatter = DateFormatter()
+                                                                if let event_date = event_start["datetime"] as? String{
+                                                                    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+                                                                    let date = dateFormatter.date(from: event_date)!
+                                                                    result["date"] = date as AnyObject
+                                                                }else if let event_date = event_start["date"] as? String{
+                                                                    dateFormatter.dateFormat = "yyyy-MM-dd"
+                                                                    let date = dateFormatter.date(from: event_date)!
+                                                                    result["date"] = date as AnyObject
+                                                                }
+                                                                
+                                                            }
+                                                            if let location = e["location"] as? [String:AnyObject]{
+                                                                if let cityName = location["city"] as? String{
+                                                                    result["location"] = cityName as AnyObject
+                                                                }
+                                                            }
+                                                            
+                                                            if let venue = e["venue"] as? [String:AnyObject]{
+                                                                if let lat = venue["lat"] as? Double{
+                                                                    result["lat"] = lat as AnyObject
+                                                                }
+                                                                if let lng = venue["lng"] as? Double{
+                                                                    result["lng"] = lng as AnyObject
+                                                                }
+                                                                if let displayName = venue["displayName"] as? String{
+                                                                    result["venue"] = displayName as AnyObject
+                                                                }
+                                                            }
+                                                            finalResult.append(result)
+                                                        }
+                                                        
+                                                    }
+                                                }
+                                                completionHandler(true,finalResult)
+                                            }
+                                        })
+                                        task3.resume()
+                                        break
+                                    }
+                                    
+                                }
+                                
+                            }
+                            
+                        }
+                        
+                        
+                    }
+                    
+                }
+                task2.resume()
+            }
+        }
+    }
+    task.resume()
+}
 
 

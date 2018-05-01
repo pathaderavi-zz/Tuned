@@ -10,6 +10,7 @@
 import Foundation
 import UIKit
 import CoreData
+import EventKit
 
 class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetchedResultsControllerDelegate{
     var artistName:String!
@@ -33,12 +34,14 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     var activeContainer:Int = 1
     var mbidStatus:Bool = false
     var artistUrlFromMain:String!
-    
+    var allSongKickEvents = [[String:AnyObject]]()
+    let eventStore = EKEventStore()
     //CoreData variables
     var artist:Artists!
     var events:Events!
     var tracks:Tracks!
     var socials:Socials!
+    @IBOutlet weak var eventsMapButton: UIBarButtonItem!
     var fetchedResultController:NSFetchedResultsController<Artists>!
     var fetchTracks = [String]()
     var fetchEvents = [String:Bool]()
@@ -46,10 +49,14 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     var fetchedTracksController:NSFetchedResultsController<Tracks>!
     var fetchedSocialsController:NSFetchedResultsController<Socials>!
     var borderBool:Bool = false
+    var eventUrl:String!
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-
+    @IBAction func eventsMapButton(_ sender: Any) {
+        performSegue(withIdentifier: "eventsMap", sender: self)
+    }
+    
     override func viewDidDisappear(_ animated: Bool) {
         fetchedResultController = nil
         super.viewDidDisappear(animated)
@@ -83,7 +90,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     }
     override func viewDidLayoutSubviews() {
         if !borderBool{
-        activateBorder(button: bioButton)
+            activateBorder(button: bioButton)
             borderBool = true
         }
     }
@@ -95,11 +102,13 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
         NotificationCenter.default.addObserver(self, selector: #selector(visibleCollectionViewCellsReload), name: .UIApplicationDidBecomeActive, object: nil)
         tracksController = self.storyboard!.instantiateViewController(withIdentifier: "tracksContainer") as! TracksContainer
         eventsController = self.storyboard?.instantiateViewController(withIdentifier: "eventsContainer") as! EventsContainer
+        eventsController.delegateContainer = self
         if(UIDevice.current.orientation == .portrait  || UIDevice.current.orientation == .portraitUpsideDown || (UIDevice.current.orientation == .faceUp)){
             imageView.contentMode = .scaleAspectFit
         }else{
             imageView.contentMode = .scaleAspectFill
         }
+        
         scrollView.bounces = false
         scrollView.delegate = self
         self.navigationItem.title = artistName
@@ -131,78 +140,72 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     self.c2.addSubview(controller.view)
                 }
-        
+                
             }
             loadingIndicator.stopAnimating()
             enableButtons()
         }
         else{
+            //  DispatchQueue.global(qos:.userInitiated).async {
+            //                artistDataDownload(artist: updatedName, completionHadler: { (success,artist,noneFound) in
+            //                    if success{
+            //                        self.currentArtist = artist
+            self.mbidStatus = (self.currentArtist.mbid == "")
+            DispatchQueue.main.async {
+                let controller = self.storyboard!.instantiateViewController(withIdentifier: "bioContainer") as! BioContainer
+                if self.currentArtist.onTour == "0"{
+                    self.onTour.isHidden = true
+                }else{
+                    self.onTour.isHidden = false
+                }
+                controller.bioLabelText = self.currentArtist.bioContent
+                controller.lastFmUrl = NSMutableAttributedString(string:self.currentArtist.bioContent)
+                self.c2.addSubview(controller.view)
+            }
             
-            
-            DispatchQueue.global(qos:.userInitiated).async {
-                artistDataDownload(artist: updatedName, completionHadler: { (success,artist,noneFound) in
-                    if noneFound{
-                        UserDefaults.standard.set(false, forKey: "incoming")
-                        //self.navigationController?.popViewController(animated: true)
-                        self.showAlertUnableToFetch(title: "Unable to Fetch", message: "Would you like to see details on Last.fm webpage?")
-                        self.loadingIndicator.stopAnimating()
-                        return
+            getTopTracks(artistName: self.artistName, completionHandler: { (success, result) in
+                if success {
+                    self.fetchTracks = result
+                }else{
+                    DispatchQueue.main.async {
+                        self.showAlert(title: "No Internet Connection", message: "Error Downloading Data. Please Try Again.")
                     }
-                    if success{
-                        self.currentArtist = artist
-                        self.mbidStatus = (artist.mbid == "")
-                        DispatchQueue.main.async {
-                            let controller = self.storyboard!.instantiateViewController(withIdentifier: "bioContainer") as! BioContainer
-                            if artist.onTour == "0"{
-                                self.onTour.isHidden = true
-                            }else{
-                                self.onTour.isHidden = false
-                            }
-                            controller.bioLabelText = artist.bioContent
-                            controller.lastFmUrl = NSMutableAttributedString(string:artist.bioContent)
-                            self.c2.addSubview(controller.view)
-                        }
-                        
-                        getTopTracks(artistName: self.artistName, completionHandler: { (success, result) in
-                            if success {
-                                self.fetchTracks = result
-                            }else{
-                                self.showAlert(title: "No Internet Connection", message: "Error Downloading Data. Please Try Again.")
-                            }
-                        })
-                        getSocialHandles(mbid: artist.mbid) { (success, result, error) in
-                            if success{
-                                DispatchQueue.main.async {
-                                    self.enableButtons()
-                                }
-                                self.allSocialHandles = result
-                                if !self.mbidStatus {
-                                    getLatestEvents(artistMbid: artist.mbid, completionHandler: { (success, result) in
-                                        if success {
-                                            self.fetchEvents = result
-                                        }else{
-                                            self.showAlert(title: "No Internet Connection", message: "Error Downloading Data. Please Try Again.")
-                                        }
-                                    })
-                                }
-                            }
-                            if error {
-                                self.showAlert(title: "No Internet Connection", message: "Unable to Connect to the Internet. Please try again.")
-                            }else{
-                                DispatchQueue.main.async {
-                                    self.enableButtons()
-                                }
-                            }
-                            
-                            
-                        }
-                    } else {
-                        
-                        self.showAlert(title: "No Internet Connection", message: "Unable to Connect to the Internet. Please try again.")
+                    
+                }
+            })
+            getSongKickEvents(mbid: self.currentArtist.mbid, name: self.currentArtist.name, completionHandler: {success,result in
+                if success{
+                        self.allSongKickEvents = result
+                        //Add to datacontroller and save
+                }else{
+                    DispatchQueue.main.async {
+                        self.showAlert(title: "No Internet Connection", message: "Error Downloading Data. Please Try Again.")
                     }
-                })
+                }
+                DispatchQueue.main.async {
+                    self.enableButtons()
+                }
+            })
+            getSocialHandles(mbid: currentArtist.mbid) { (success, result, error) in
+                if success{
+                    
+                    self.allSocialHandles = result
+               
+                }
+                if error {
+                    self.showAlert(title: "No Internet Connection", message: "Unable to Connect to the Internet. Please try again.")
+                }else{
+                    DispatchQueue.main.async {
+                        self.enableButtons()
+                    }
+                }
+                
                 
             }
+            //                    }
+            //                })
+            
+            // }
         }
         self.setupContaiers()
         activateBorder(button: bioButton)
@@ -308,7 +311,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     
     @objc func imageFit(){
         let iPad = ( UIDevice.current.userInterfaceIdiom == .pad || UIDevice.current.userInterfaceIdiom == .unspecified)
-        if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight || (UIDevice.current.orientation == .portraitUpsideDown)){
+        if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight /*|| (UIDevice.current.orientation == .portraitUpsideDown)*/){
             if iPad{
                 imageView.contentMode = UIViewContentMode.scaleAspectFit
             }else{
@@ -404,6 +407,31 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
             }
         }
     }
+    func showAlertEvent(title:String,message:String){
+        let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
+        alert.addAction(UIAlertAction(title: "Don't Allow", style: UIAlertActionStyle.default, handler: {(action) in
+            alert.dismiss(animated: true, completion: nil)
+        }))
+        alert.addAction(UIAlertAction(title: "Allow", style: UIAlertActionStyle.default, handler: {(action) in
+            alert.dismiss(animated: true, completion: nil)
+            let settingsUrl = URL(string: UIApplicationOpenSettingsURLString)
+            if UIApplication.shared.canOpenURL(settingsUrl!) {
+                UIApplication.shared.open(settingsUrl!, completionHandler: { (success) in
+                })
+            }
+            
+        }))
+        self.present(alert, animated: true, completion: nil)
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if eventsContainer.alpha == 1 {
+            if eventsController != nil {
+                eventsController.allSongKickEvents = allSongKickEvents
+                eventsController.viewDidLoad()
+            }
+        }
+    }
     @IBAction func eventsButtonClicked(_ sender: Any) {
         activeContainer = 3
         self.activateBorder(button:self.eventsButton)
@@ -415,28 +443,46 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                 self.eventsContainer.alpha = 1
                 self.c2.alpha = 0
                 self.c1.alpha = 0
-                
         }) { (completed) in
-            if self.fetchTracks.count == 0 {
+            
+            self.eventsContainer.addSubview(self.eventsController.view)
+            self.eventsController.noEventsFoundLabel.alpha = 0
+            self.eventsController.loadingIndicator.startAnimating()
+            
+            if self.allSongKickEvents.count == 0 {
                 DispatchQueue.global(qos: .userInitiated).async {
-                    getLatestEvents(artistMbid: self.currentArtist.mbid, completionHandler: { (success, some) in
+                    getSongKickEvents(mbid: self.currentArtist.mbid, name: self.currentArtist.name, completionHandler: {success,result in
                         if success{
                             DispatchQueue.main.async {
-                                self.eventsController.allEvents = some
-                                self.fetchEvents = some
-                                self.eventsContainer.addSubview(self.eventsController.view)
+                                self.eventsController.allSongKickEvents = result
+                                self.eventsController.parentController = self
+                                self.allSongKickEvents = result
                                 self.eventsController.tableView.reloadData()
-                                self.eventsController.loadingIndicator.stopAnimating()
+                                self.eventsController.enableLabels()
                             }
+                        }else{
+                            self.eventsController.tableView.reloadData()
+                            self.eventsController.enableLabels()
                         }
                     })
                 }
             }else{
-                self.eventsController.allEvents = self.fetchEvents
-                self.eventsContainer.addSubview(self.eventsController.view)
-                //self.eventsController.tableView.reloadData()
-                self.eventsController.loadingIndicator.stopAnimating()
+                self.eventsController.allSongKickEvents = self.allSongKickEvents
+                self.eventsController.parentController = self
+                self.eventsController.tableView.reloadData()
+                self.eventsController.enableLabels()
             }
+        }
+        let eventStore = EKEventStore()
+        eventStore.requestAccess(to: .event) { (success, error) in
+            if self.eventsController != nil && self.eventsController.tableView != nil {
+                DispatchQueue.main.async {
+                    self.eventsController.tableView.reloadData()
+                    self.eventsController.enableLabels()
+                }
+                
+            }
+            
         }
     }
     
@@ -487,22 +533,41 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                             }
                             
                         }
-                        if self.currentArtist.mbid != "" {
-                            
-                            getLatestEvents(artistMbid: self.currentArtist.mbid, completionHandler: { (success, events) in
-                                DispatchQueue.main.async {
-                                    for event in events{
-                                        self.events = Events(context:self.dataController.viewContext)
-                                        self.events.name = event.key
-                                        self.events.artistEvents = self.artist
-                                        do {
-                                            try self.dataController.viewContext.save()
-                                        }catch{
-                                            fatalError("4")
-                                        }
+                        getSongKickEvents(mbid: self.currentArtist.mbid, name: self.currentArtist.name, completionHandler: { (success, events) in
+                            DispatchQueue.main.async {
+                                self.allSongKickEvents = events
+                                for event in events{
+                                    self.events = Events(context:self.dataController.viewContext)
+                                    if let eventDate = event["date"] as? Date {
+                                        self.events.date = eventDate
+                                    }
+                                    if let eventLocation = event["location"] as? String {
+                                        self.events.location = eventLocation
+                                    }
+                                    if let eventLocLng = event["lng"] as? Double{
+                                        self.events.lng = eventLocLng
+                                    }
+                                    if let eventLocLat = event["lat"] as? Double{
+                                        self.events.lat = eventLocLat
+                                    }
+                                    if let eventUri = event["uri"] as? String{
+                                        self.events.uri = eventUri
+                                    }
+                                    if let eventVenue = event["venue"] as? String{
+                                        self.events.venue = eventVenue
                                     }
                                     
+                                    self.events.artistEvents = self.artist
+                                    do {
+                                        try self.dataController.viewContext.save()
+                                    }catch{
+                                        fatalError("4")
+                                    }
                                 }
+                                
+                            }
+                        })
+                        if self.currentArtist.mbid != "" {
                                 getSocialHandles(mbid: self.currentArtist.mbid, completionHandler: { (success, handles, error) in
                                     self.socials = Socials(context:self.dataController.viewContext)
                                     self.socials.socialsArtist = self.artist
@@ -527,7 +592,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                                     }
                                 })
                                 
-                            })
+                          
                         }
                         
                     }
@@ -546,18 +611,36 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                     print(e.localizedDescription)
                 }
             }
-            if !mbidStatus{
-                for event in fetchEvents{
-                    self.events = Events(context:self.dataController.viewContext)
-                    self.events.name = event.key
-                    self.events.artistEvents = self.artist
-                    do {
-                        try self.dataController.viewContext.save()
-                    }catch let e{
-                        print(e.localizedDescription)
-                    }
+            //Needs to change
+            for event in allSongKickEvents{
+                self.events = Events(context:self.dataController.viewContext)
+                if let eventDate = event["date"] as? Date {
+                    self.events.date = eventDate
                 }
-                
+                if let eventLocation = event["location"] as? String {
+                    self.events.location = eventLocation
+                }
+                if let eventLocLng = event["lng"] as? Double{
+                    self.events.lng = eventLocLng
+                }
+                if let eventLocLat = event["lat"] as? Double{
+                    self.events.lat = eventLocLat
+                }
+                if let eventUri = event["uri"] as? String{
+                    self.events.uri = eventUri
+                }
+                if let eventVenue = event["venue"] as? String{
+                    self.events.venue = eventVenue
+                }
+                self.events.artistEvents = self.artist
+                do {
+                    try self.dataController.viewContext.save()
+                }catch let e{
+                    print(e.localizedDescription)
+                }
+            }
+            
+            if !mbidStatus{
                 //Save Socials
                 self.socials = Socials(context:self.dataController.viewContext)
                 self.socials.socialsArtist = self.artist
@@ -632,6 +715,9 @@ extension ArtistDetailViewController{
         bioButton.isEnabled = true
         tracksButton.isEnabled = true
         eventsButton.isEnabled = true
+        if allSongKickEvents.count != 0 {
+            eventsMapButton.isEnabled = true
+        }
         loadingIndicator.stopAnimating()
     }
     
@@ -640,7 +726,7 @@ extension ArtistDetailViewController{
         twitterButton.isEnabled = false
         instagramButton.isEnabled = false
         youtubeButton.isEnabled = false
-        
+        eventsMapButton.isEnabled = false
         disableFavorites()
         bioButton.isEnabled = false
         tracksButton.isEnabled = false
@@ -652,6 +738,7 @@ extension ArtistDetailViewController{
         self.c1.alpha = 0
     }
     fileprivate func saveonDisappear() {
+        fetchArtist()
         if yelloFav.isHidden{
             if fetchedResultController.fetchedObjects?.count != 0 {
                 deleteArtist()
@@ -669,7 +756,7 @@ extension ArtistDetailViewController{
         }catch let e {
             print(e.localizedDescription)
         }
-        super.viewWillAppear(animated)
+        super.viewWillDisappear(animated)
     }
     func showAlert(title:String,message:String){
         let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
@@ -726,17 +813,48 @@ extension ArtistDetailViewController {
     }
     fileprivate func fetchAllEvents() {
         let fetchRequest:NSFetchRequest<Events> = Events.fetchRequest()
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "name", ascending: false)]
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "date", ascending: true)]
         fetchRequest.predicate = NSPredicate(format:"(artistEvents == %@)",artist)
-        
+        var addEvent = [String:AnyObject]()
         fetchedEventsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
         fetchedEventsController.delegate = self
         do {
             try fetchedEventsController.performFetch()
             if fetchedEventsController.fetchedObjects?.count != 0 {
+//                print(fetchedEventsController.fetchedObjects)
+                if allSongKickEvents.count != 0{
                 for e in fetchedEventsController.fetchedObjects! {
-                    fetchEvents[e.name!] = e.cancelled
+                    if let date = e.date as? Date{
+                        print(date)
+                        if date <= (Date() - 24*60*60) {
+                            self.dataController.viewContext.delete(e)
+                            do {
+                                try self.dataController.viewContext.save()
+                            }catch let e{
+                                print(e.localizedDescription)
+                            }
+                            continue
+                        }
+                        addEvent["date"] = date as AnyObject
+                    }
+                    if let location = e.location{
+                        addEvent["location"] = location as AnyObject
+                    }
+                    if let lat = e.lat as? Double{
+                        addEvent["lat"] = lat as AnyObject
+                    }
+                    if let lng = e.lng as? Double{
+                        addEvent["lng"] = lng as AnyObject
+                    }
+                    if let venue = e.venue {
+                        addEvent["venue"] = venue as AnyObject
+                    }
+                    if let location = e.uri {
+                        addEvent["uri"] = location as AnyObject
+                    }
+                    allSongKickEvents.append(addEvent)
                 }
+            }
             }
         }catch{
             fatalError("Cannot Fetch")
@@ -790,6 +908,27 @@ extension ArtistDetailViewController {
             }
         }catch let er{
             print(er.localizedDescription)
+        }
+    }
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier != nil && segue != nil {
+            if segue.identifier! == "eventsMap"{
+                if let eventsMapController = segue.destination as? EventsMapViewController{
+                    eventsMapController.allSongKickEvents = allSongKickEvents
+                    eventsMapController.previousController = self
+                }
+            }
+        }
+    }
+}
+extension ArtistDetailViewController:CustomViewContainerDelegate{
+    func openUrl(string: String) {
+        //eventUrl = string
+        //self.performSegue(withIdentifier: "bookEvent", sender: self)
+        if UIApplication.shared.canOpenURL(URL(string:string)!){
+            UIApplication.shared.open(URL(string:string)!, options: [:], completionHandler: { (success) in
+                
+            })
         }
     }
 }

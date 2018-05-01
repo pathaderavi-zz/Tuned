@@ -384,13 +384,21 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="lz3-br-HRe"/>
                     </view>
-                    <navigationItem key="navigationItem" id="5ac-Tk-POF"/>
+                    <navigationItem key="navigationItem" id="5ac-Tk-POF">
+                        <barButtonItem key="rightBarButtonItem" title="EventsMap" id="Zdb-DJ-g38">
+                            <connections>
+                                <action selector="eventsMapButton:" destination="HSP-97-CZg" id="axF-52-UwP"/>
+                                <segue destination="2I7-2d-1Jf" kind="show" identifier="eventsMap" id="gBQ-SC-dbD"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="bioButton" destination="Ng5-ch-GLz" id="1Xu-hA-57J"/>
                         <outlet property="c1" destination="cGr-j5-aNA" id="d0p-DT-BN8"/>
                         <outlet property="c2" destination="1m4-7O-TCr" id="PdV-4Z-lW0"/>
                         <outlet property="eventsButton" destination="YoN-pj-z64" id="2w3-uj-u1h"/>
                         <outlet property="eventsContainer" destination="6sQ-Bd-LNp" id="i44-Lp-Cve"/>
+                        <outlet property="eventsMapButton" destination="Zdb-DJ-g38" id="fM6-zn-VH1"/>
                         <outlet property="facebookButton" destination="o4c-2u-5XO" id="HFb-LM-9kd"/>
                         <outlet property="favButton" destination="yNm-jg-XPw" id="i7Y-kS-8Ul"/>
                         <outlet property="imageView" destination="GNW-ZT-8XD" id="OJF-qT-DJG"/>
@@ -406,7 +414,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4Pq-xo-ffs" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2396" y="-46.326836581709152"/>
+            <point key="canvasLocation" x="2946" y="188"/>
         </scene>
         <!--Item-->
         <scene sceneID="hA4-9A-5Db">
@@ -491,6 +499,42 @@
             </objects>
             <point key="canvasLocation" x="4196" y="-45.42728635682159"/>
         </scene>
+        <!--Events Map View Controller-->
+        <scene sceneID="RUr-Nw-fDR">
+            <objects>
+                <viewController id="2I7-2d-1Jf" customClass="EventsMapViewController" customModule="Tuned" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="fnK-nc-IPE">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" showsUserLocation="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rDz-nI-aZ2">
+                                <rect key="frame" x="0.0" y="64" width="375" height="559"/>
+                            </mapView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="97a-vq-3KZ">
+                                <rect key="frame" x="169" y="315" width="37" height="37"/>
+                                <color key="color" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </activityIndicatorView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="TC7-Ih-orD" firstAttribute="trailing" secondItem="rDz-nI-aZ2" secondAttribute="trailing" id="KGW-aQ-jBf"/>
+                            <constraint firstItem="97a-vq-3KZ" firstAttribute="centerX" secondItem="TC7-Ih-orD" secondAttribute="centerX" id="Pbc-SX-QUC"/>
+                            <constraint firstItem="TC7-Ih-orD" firstAttribute="bottom" secondItem="rDz-nI-aZ2" secondAttribute="bottom" id="X6E-UC-ZTP"/>
+                            <constraint firstItem="97a-vq-3KZ" firstAttribute="centerY" secondItem="TC7-Ih-orD" secondAttribute="centerY" constant="-10" id="jD5-3L-g6Y"/>
+                            <constraint firstItem="rDz-nI-aZ2" firstAttribute="top" secondItem="TC7-Ih-orD" secondAttribute="top" id="mAl-4u-cvn"/>
+                            <constraint firstItem="rDz-nI-aZ2" firstAttribute="leading" secondItem="TC7-Ih-orD" secondAttribute="leading" id="w7b-xL-Kfw"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="TC7-Ih-orD"/>
+                    </view>
+                    <connections>
+                        <outlet property="loadingIndicator" destination="97a-vq-3KZ" id="WCh-Vk-MOl"/>
+                        <outlet property="mapView" destination="rDz-nI-aZ2" id="Zbq-wA-rHw"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Odl-UF-jE0" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4196" y="-1028"/>
+        </scene>
         <!--Bio Container-->
         <scene sceneID="NMN-8K-yUN">
             <objects>
@@ -573,23 +617,66 @@
                                 <color key="separatorColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="sectionIndexBackgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="eventsCell" textLabel="7Pe-J5-krd" style="IBUITableViewCellStyleDefault" id="ebN-XT-gjB">
-                                        <rect key="frame" x="0.0" y="28" width="375" height="44"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="eventsCell" rowHeight="70" id="ebN-XT-gjB" customClass="EventsCell" customModule="Tuned" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="28" width="375" height="70"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="ebN-XT-gjB" id="Wi5-cg-vmf">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="69.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="7Pe-J5-krd">
-                                                    <rect key="frame" x="15" y="0.0" width="345" height="43.5"/>
-                                                    <autoresizingMask key="autoresizingMask"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <nil key="textColor"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XHF-Kd-4ct">
+                                                    <rect key="frame" x="9" y="11" width="0.0" height="32"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iIT-hx-f1j">
+                                                    <rect key="frame" x="316" y="4" width="32" height="58"/>
+                                                    <state key="normal" image="calendar_add"/>
+                                                    <connections>
+                                                        <action selector="calendarButtonTapped:" destination="ebN-XT-gjB" eventType="touchUpInside" id="WKI-Ay-6Ai"/>
+                                                    </connections>
+                                                </button>
+                                                <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="249" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cqZ-Gy-Ej6">
+                                                    <rect key="frame" x="201" y="5" width="83" height="56"/>
+                                                    <state key="normal" image="sk-badge-pink-32x32"/>
+                                                    <connections>
+                                                        <action selector="bookOnlineTapped:" destination="ebN-XT-gjB" eventType="touchUpInside" id="Gx9-DC-eXM"/>
+                                                    </connections>
+                                                </button>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Bs-CP-RB3">
+                                                    <rect key="frame" x="9" y="46" width="140" height="15"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
+                                            <constraints>
+                                                <constraint firstItem="3Bs-CP-RB3" firstAttribute="leading" secondItem="Wi5-cg-vmf" secondAttribute="leading" constant="9" id="Dsd-vI-U9c"/>
+                                                <constraint firstItem="3Bs-CP-RB3" firstAttribute="top" secondItem="XHF-Kd-4ct" secondAttribute="bottom" constant="3" id="GkQ-TY-QWF"/>
+                                                <constraint firstAttribute="trailing" secondItem="3Bs-CP-RB3" secondAttribute="trailing" constant="226" id="KEx-R2-Y3G"/>
+                                                <constraint firstAttribute="bottom" secondItem="XHF-Kd-4ct" secondAttribute="bottom" constant="26.5" id="OJr-ei-P2C"/>
+                                                <constraint firstItem="XHF-Kd-4ct" firstAttribute="leading" secondItem="Wi5-cg-vmf" secondAttribute="leading" constant="9" id="P9G-6b-zDr"/>
+                                                <constraint firstAttribute="bottom" secondItem="iIT-hx-f1j" secondAttribute="bottom" constant="7.5" id="TzG-mO-Dc7"/>
+                                                <constraint firstItem="cqZ-Gy-Ej6" firstAttribute="leading" secondItem="Wi5-cg-vmf" secondAttribute="leading" constant="201" id="UKn-sf-cGz"/>
+                                                <constraint firstAttribute="trailing" secondItem="iIT-hx-f1j" secondAttribute="trailing" constant="27" id="UUE-uX-Ztw"/>
+                                                <constraint firstItem="iIT-hx-f1j" firstAttribute="leading" secondItem="cqZ-Gy-Ej6" secondAttribute="trailing" constant="32" id="b2S-c6-8Ml"/>
+                                                <constraint firstItem="iIT-hx-f1j" firstAttribute="leading" secondItem="cqZ-Gy-Ej6" secondAttribute="trailing" constant="32" id="gI5-IO-3Mq"/>
+                                                <constraint firstItem="cqZ-Gy-Ej6" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="XHF-Kd-4ct" secondAttribute="trailing" constant="8" symbolic="YES" id="itH-TY-CNt"/>
+                                                <constraint firstAttribute="bottom" secondItem="3Bs-CP-RB3" secondAttribute="bottom" constant="8.5" id="joe-Uj-2mb"/>
+                                                <constraint firstAttribute="bottom" secondItem="cqZ-Gy-Ej6" secondAttribute="bottom" constant="8.5" id="pQP-oW-IN1"/>
+                                                <constraint firstItem="iIT-hx-f1j" firstAttribute="top" secondItem="Wi5-cg-vmf" secondAttribute="top" constant="4" id="uXQ-nl-Cfp"/>
+                                                <constraint firstItem="cqZ-Gy-Ej6" firstAttribute="top" secondItem="Wi5-cg-vmf" secondAttribute="top" constant="5" id="x8e-Wp-z8p"/>
+                                                <constraint firstItem="XHF-Kd-4ct" firstAttribute="top" secondItem="Wi5-cg-vmf" secondAttribute="top" constant="11" id="y8H-Ri-eEJ"/>
+                                            </constraints>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <connections>
+                                            <outlet property="bookOnlineButton" destination="cqZ-Gy-Ej6" id="FBo-Wy-S5b"/>
+                                            <outlet property="calendarButton" destination="iIT-hx-f1j" id="mpz-lH-xu8"/>
+                                            <outlet property="eventNameLabel" destination="XHF-Kd-4ct" id="YlG-9g-FQS"/>
+                                            <outlet property="subTitle" destination="3Bs-CP-RB3" id="Ypg-io-sOi"/>
+                                        </connections>
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
@@ -618,14 +705,16 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="yJy-m7-SZ1" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4196" y="520.38980509745136"/>
+            <point key="canvasLocation" x="4279" y="563"/>
         </scene>
     </scenes>
     <resources>
+        <image name="calendar_add" width="32" height="32"/>
         <image name="if_11_Media_social_website_youtube_2657544" width="256" height="256"/>
         <image name="if_12_Media_social_website_Twitter_2657545" width="256" height="256"/>
         <image name="if_1_Media_social_website_facebook_2657542" width="256" height="256"/>
         <image name="if_2_Media_social_website_instagram_2657553" width="256" height="256"/>
+        <image name="sk-badge-pink-32x32" width="32" height="32"/>
         <image name="star_Image" width="128" height="128"/>
         <image name="star_gold" width="197" height="256"/>
     </resources>

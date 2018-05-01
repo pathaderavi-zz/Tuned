@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14133" systemVersion="17D47" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="1">
+    <entity name="Artists" representedClassName="Artists" syncable="YES" codeGenerationType="class">
+        <attribute name="bio" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="creationDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="image" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
+        <attribute name="mbid" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="ontour" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="events" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Events" inverseName="artistEvents" inverseEntity="Events" syncable="YES"/>
+        <relationship name="socials" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Socials" inverseName="socialsArtist" inverseEntity="Socials" syncable="YES"/>
+        <relationship name="tracks" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Tracks" inverseName="artist" inverseEntity="Tracks" syncable="YES"/>
+    </entity>
+    <entity name="Events" representedClassName="Events" syncable="YES" codeGenerationType="class">
+        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="lat" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="lng" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="location" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="uri" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="venue" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="artistEvents" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Artists" inverseName="events" inverseEntity="Artists" syncable="YES"/>
+    </entity>
+    <entity name="Socials" representedClassName="Socials" syncable="YES" codeGenerationType="class">
+        <attribute name="facebook" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="instagram" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="twitter" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="yotutube" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="socialsArtist" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Artists" inverseName="socials" inverseEntity="Artists" syncable="YES"/>
+    </entity>
+    <entity name="Tracks" representedClassName="Tracks" syncable="YES" codeGenerationType="class">
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="artist" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Artists" inverseName="tracks" inverseEntity="Artists" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="Artists" positionX="-378" positionY="-0" width="128" height="178"/>
+        <element name="Events" positionX="-38" positionY="-36" width="128" height="150"/>
+        <element name="Socials" positionX="-36" positionY="210" width="128" height="118"/>
+        <element name="Tracks" positionX="-324" positionY="278" width="128" height="73"/>
+    </elements>
+</model>

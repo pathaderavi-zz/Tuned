@@ -32,7 +32,6 @@ class TracksContainer:UIViewController, UITableViewDataSource, UITableViewDelega
         cell.textLabel?.textColor = UIColor.white
         cell.textLabel?.text = allTracks[indexPath.row]
         cell.layoutMargins = .zero
-        print(allTracks[indexPath.row])
         cell.selectionStyle = UITableViewCellSelectionStyle.none
         return cell
     }

@@ -11,7 +11,6 @@
 		40178E2C206A7BB4002A9B0E /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40178E2B206A7BB4002A9B0E /* MainViewController.swift */; };
 		40178E2F206A7BB4002A9B0E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 40178E2D206A7BB4002A9B0E /* Main.storyboard */; };
 		40178E31206A7BB4002A9B0E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 40178E30206A7BB4002A9B0E /* Assets.xcassets */; };
-		40178E34206A7BB4002A9B0E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 40178E32206A7BB4002A9B0E /* LaunchScreen.storyboard */; };
 		40178E3D206A808B002A9B0E /* Requests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40178E3C206A808B002A9B0E /* Requests.swift */; };
 		40178E40206AD8C6002A9B0E /* Artist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40178E3F206AD8C6002A9B0E /* Artist.swift */; };
 		403DA55B2095E61E00DBB08A /* EventsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 403DA55A2095E61D00DBB08A /* EventsContainer.swift */; };
@@ -22,6 +21,7 @@
 		4075084E206B507A005F1336 /* ArtistDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4075084D206B507A005F1336 /* ArtistDetailViewController.swift */; };
 		40750850206D19D0005F1336 /* BioContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4075084F206D19D0005F1336 /* BioContainer.swift */; };
 		40750852206D1D3A005F1336 /* TracksContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40750851206D1D3A005F1336 /* TracksContainer.swift */; };
+		409873D92098D35A00690673 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 409873D82098D35A00690673 /* Launch Screen.storyboard */; };
 		40F0E80720739CCB00FEC742 /* Artists.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 40F0E80520739CCB00FEC742 /* Artists.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
@@ -31,7 +31,6 @@
 		40178E2B206A7BB4002A9B0E /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		40178E2E206A7BB4002A9B0E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		40178E30206A7BB4002A9B0E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		40178E33206A7BB4002A9B0E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		40178E35206A7BB4002A9B0E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		40178E3C206A808B002A9B0E /* Requests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Requests.swift; sourceTree = "<group>"; };
 		40178E3F206AD8C6002A9B0E /* Artist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Artist.swift; sourceTree = "<group>"; };
@@ -45,6 +44,7 @@
 		4075084D206B507A005F1336 /* ArtistDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistDetailViewController.swift; sourceTree = "<group>"; };
 		4075084F206D19D0005F1336 /* BioContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BioContainer.swift; sourceTree = "<group>"; };
 		40750851206D1D3A005F1336 /* TracksContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracksContainer.swift; sourceTree = "<group>"; };
+		409873D82098D35A00690673 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		40B177C02075984400088300 /* Artists 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Artists 4.xcdatamodel"; sourceTree = "<group>"; };
 		40F0E80620739CCB00FEC742 /* Artists.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Artists.xcdatamodel; sourceTree = "<group>"; };
 		40F0E80820739FA500FEC742 /* Artists 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Artists 2.xcdatamodel"; sourceTree = "<group>"; };
@@ -64,6 +64,7 @@
 		40178E1D206A7BB4002A9B0E = {
 			isa = PBXGroup;
 			children = (
+				409873D82098D35A00690673 /* Launch Screen.storyboard */,
 				40178E28206A7BB4002A9B0E /* Tuned */,
 				40178E27206A7BB4002A9B0E /* Products */,
 			);
@@ -87,7 +88,6 @@
 				40178E29206A7BB4002A9B0E /* AppDelegate.swift */,
 				40178E2D206A7BB4002A9B0E /* Main.storyboard */,
 				40178E30206A7BB4002A9B0E /* Assets.xcassets */,
-				40178E32206A7BB4002A9B0E /* LaunchScreen.storyboard */,
 				40178E35206A7BB4002A9B0E /* Info.plist */,
 			);
 			path = Tuned;
@@ -200,7 +200,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				40178E34206A7BB4002A9B0E /* LaunchScreen.storyboard in Resources */,
+				409873D92098D35A00690673 /* Launch Screen.storyboard in Resources */,
 				40178E31206A7BB4002A9B0E /* Assets.xcassets in Resources */,
 				40178E2F206A7BB4002A9B0E /* Main.storyboard in Resources */,
 			);
@@ -238,14 +238,6 @@
 				40178E2E206A7BB4002A9B0E /* Base */,
 			);
 			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		40178E32206A7BB4002A9B0E /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				40178E33206A7BB4002A9B0E /* Base */,
-			);
-			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -362,6 +354,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 3458EK872K;
 				INFOPLIST_FILE = Tuned/Info.plist;
@@ -377,6 +370,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 3458EK872K;
 				INFOPLIST_FILE = Tuned/Info.plist;

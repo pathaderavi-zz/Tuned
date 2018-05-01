@@ -83,7 +83,7 @@ class EventsMapViewController: UIViewController, MKMapViewDelegate{
         //loadingIndicator.stopAnimating()
         // }
     }
-    var i = 0
+
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         
         let reusedPin = "eventPin"
@@ -128,14 +128,11 @@ class EventsMapViewController: UIViewController, MKMapViewDelegate{
             if  e.notes == "Tunies / SongKick" && e.startDate == completeDate && completeTitle == e.title{ //try to add artistname for better comparison
                 DispatchQueue.main.async {
                     calendarB.setBackgroundImage(#imageLiteral(resourceName: "calendar_tick"), for: .normal)
-          
                 }
             }
         }
         
         //might have to modify this
-   
-   
         return pinView
     }
     
@@ -143,7 +140,8 @@ class EventsMapViewController: UIViewController, MKMapViewDelegate{
 
     @objc fileprivate func action(sender: UIButton) {
         let pTest = sender.restorationIdentifier
-
+        eventStore.requestAccess(to: .event) { (success, error) in
+        }
         let arr = pTest?.split(separator: "|")
         let allMapAnnotations = mapView.annotations
         let dateFormatter = DateFormatter()
@@ -187,6 +185,7 @@ class EventsMapViewController: UIViewController, MKMapViewDelegate{
                 }
             }else{
                 //request calendar access
+                self.showAlertForAccess()
             }
 
             for annot in allMapAnnotations {
@@ -224,6 +223,7 @@ class EventsMapViewController: UIViewController, MKMapViewDelegate{
                 }
             }else{
                 //request access
+                self.showAlertForAccess()
             }
         }
     }
@@ -236,6 +236,27 @@ class EventsMapViewController: UIViewController, MKMapViewDelegate{
         
         UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil)
     }
+    func showAlertForAccess(){
+        let alertController = UIAlertController (title: "Need Calendar Access", message: "The App needs access to calendar to add events.", preferredStyle: .alert)
+        
+        let settingsAction = UIAlertAction(title: "Settings", style: .default) { (_) -> Void in
+            guard let settingsUrl = URL(string: UIApplicationOpenSettingsURLString) else {
+                return
+            }
+            
+            if UIApplication.shared.canOpenURL(settingsUrl) {
+                UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                })
+            }
+        }
+        alertController.addAction(settingsAction)
+        let cancelAction = UIAlertAction(title: "Cancel", style: .default, handler: nil)
+        alertController.addAction(cancelAction)
+        
+        present(alertController, animated: true, completion: nil)
+    }
+    
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         previousController.allSongKickEvents = allSongKickEvents

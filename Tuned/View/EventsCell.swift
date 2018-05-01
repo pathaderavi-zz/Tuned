@@ -20,7 +20,7 @@ class EventsCell:UITableViewCell{
     var delegate: UIViewController?
     var eventPresent:Bool = false
     var delegateTap: CustomCellDelegate?
-    
+    var delegateEvent: EventPress?
     @IBAction func bookOnlineTapped(_ sender: Any) {
         let url = currentEvent["uri"] as? String
         delegateTap?.sharePressed(cell: self,string:url!)
@@ -90,6 +90,7 @@ class EventsCell:UITableViewCell{
             }
         }else{
             // Please Grant Access to add event to the calendar
+            delegateEvent?.eventPressed(cell:self)
         }
         
         
@@ -109,4 +110,8 @@ class EventsCell:UITableViewCell{
 }
 protocol CustomCellDelegate: class {
     func sharePressed(cell: EventsCell,string:String)
+}
+
+protocol EventPress: class{
+    func eventPressed(cell: EventsCell)
 }

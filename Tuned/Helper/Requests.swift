@@ -299,7 +299,7 @@ func searchArtists(search:String, completionHandler:@escaping(_ success:Bool,_ s
     task.resume()
 }
 
-let SONGKICK_API_KEY:String = "YOUR_SONGKICK_API_KEY"
+let SONGKICK_API_KEY:String = "SONGKICK_API_KEY"
 let locationKey = "location"
 let urlKey = "url"
 let venueName = "venuename"

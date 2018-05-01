@@ -65,6 +65,7 @@ class EventsContainer:UIViewController,UITableViewDelegate,UITableViewDataSource
         var cell = tableView.dequeueReusableCell(withIdentifier: "eventsCell") as! EventsCell
         cell.calendarButton.imageView?.image = #imageLiteral(resourceName: "calendar_add")
         cell.delegateTap = self
+        cell.delegateEvent = self
         let eventLocation = allSongKickEvents[indexPath.row]["location"] as? String
         //cell.selectionStyle = UITableViewCellSelectionStyle.none
         let eventDate = allSongKickEvents[indexPath.row]["date"] as? Date
@@ -134,5 +135,30 @@ protocol CustomViewContainerDelegate: class {
 extension EventsContainer: CustomCellDelegate {
     func sharePressed(cell: EventsCell,string:String) {
         delegateContainer.openUrl(string: string)
+    }
+}
+
+extension EventsContainer: EventPress {
+    func eventPressed(cell: EventsCell) {
+        showAlertForAccess()
+    }
+    func showAlertForAccess(){
+        let alertController = UIAlertController (title: "Need Calendar Access", message: "The App needs access to calendar to add events.", preferredStyle: .alert)
+        
+        let settingsAction = UIAlertAction(title: "Settings", style: .default) { (_) -> Void in
+            guard let settingsUrl = URL(string: UIApplicationOpenSettingsURLString) else {
+                return
+            }
+            
+            if UIApplication.shared.canOpenURL(settingsUrl) {
+                UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                })
+            }
+        }
+        alertController.addAction(settingsAction)
+        let cancelAction = UIAlertAction(title: "Cancel", style: .default, handler: nil)
+        alertController.addAction(cancelAction)
+        
+        present(alertController, animated: true, completion: nil)
     }
 }

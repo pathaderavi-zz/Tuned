@@ -82,12 +82,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
             fatalError("Cannot Fetch")
         }
     }
-    @objc func visibleCollectionViewCellsReload(){
-        if !UserDefaults.standard.bool(forKey: "incoming"){
-            self.navigationController?.popViewController(animated: true)
-            UserDefaults.standard.set(true, forKey: "incoming")
-        }
-    }
+
     override func viewDidLayoutSubviews() {
         if !borderBool{
             activateBorder(button: bioButton)
@@ -99,15 +94,15 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
         fetchArtist()
         setupFavButton()
         disableButtons()
-        NotificationCenter.default.addObserver(self, selector: #selector(visibleCollectionViewCellsReload), name: .UIApplicationDidBecomeActive, object: nil)
+      
         tracksController = self.storyboard!.instantiateViewController(withIdentifier: "tracksContainer") as! TracksContainer
         eventsController = self.storyboard?.instantiateViewController(withIdentifier: "eventsContainer") as! EventsContainer
         eventsController.delegateContainer = self
-        if(UIDevice.current.orientation == .portrait  || UIDevice.current.orientation == .portraitUpsideDown || (UIDevice.current.orientation == .faceUp)){
-            imageView.contentMode = .scaleAspectFit
-        }else{
-            imageView.contentMode = .scaleAspectFill
-        }
+//        if(UIDevice.current.orientation == .portrait  || UIDevice.current.orientation == .portraitUpsideDown || (UIDevice.current.orientation == .faceUp)){
+//            imageView.contentMode = .scaleAspectFit
+//        }else{
+//            imageView.contentMode = .scaleAspectFill
+//        }
         
         scrollView.bounces = false
         scrollView.delegate = self
@@ -311,7 +306,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     
     @objc func imageFit(){
         let iPad = ( UIDevice.current.userInterfaceIdiom == .pad || UIDevice.current.userInterfaceIdiom == .unspecified)
-        if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight /*|| (UIDevice.current.orientation == .portraitUpsideDown)*/){
+        if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight || (UIDevice.current.orientation == .portraitUpsideDown)){
             if iPad{
                 imageView.contentMode = UIViewContentMode.scaleAspectFit
             }else{
@@ -332,6 +327,8 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                 imageView.contentMode = UIViewContentMode.scaleAspectFill
             }
             
+        }else{
+            imageView.contentMode = UIViewContentMode.scaleAspectFit
         }
         
     }
@@ -480,10 +477,14 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
                     self.eventsController.tableView.reloadData()
                     self.eventsController.enableLabels()
                 }
-                
             }
             
         }
+//        let status = EKEventStore.authorizationStatus(for: .event) == EKAuthorizationStatus.authorized
+//        if !status{
+//            self.showAlertForAccess()
+//        }
+        
     }
     
     func setupFavButton(){
@@ -770,27 +771,7 @@ extension ArtistDetailViewController{
         }))
         self.present(alert, animated: true, completion: nil)
     }
-    
-    func showAlertUnableToFetch(title:String,message:String){
-        let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
-        
-        alert.addAction(UIAlertAction(title: "Go Back", style: UIAlertActionStyle.default, handler: {(action) in
-            alert.dismiss(animated: true, completion: nil)
-            self.navigationController?.popViewController(animated: true)
-        }))
-        //if url is not null and canopn
-        if artistUrlFromMain != nil && artistUrlFromMain.count != 0 {
-            if UIApplication.shared.canOpenURL(URL(string:artistUrlFromMain)!){
-                alert.addAction(UIAlertAction(title: "Open", style: UIAlertActionStyle.default, handler: {(action) in
-                    alert.dismiss(animated: true, completion: nil)
-                    UIApplication.shared.open(URL(string:self.artistUrlFromMain)!, options: [:] , completionHandler: { (success) in
-                        
-                    })
-                    self.navigationController?.popViewController(animated: true)
-                }))}
-            self.present(alert, animated: true, completion: nil)
-        }
-    }
+
 }
 extension ArtistDetailViewController {
     fileprivate func fetchAllTracks() {
@@ -825,7 +806,6 @@ extension ArtistDetailViewController {
                 if allSongKickEvents.count != 0{
                 for e in fetchedEventsController.fetchedObjects! {
                     if let date = e.date as? Date{
-                        print(date)
                         if date <= (Date() - 24*60*60) {
                             self.dataController.viewContext.delete(e)
                             do {
@@ -922,6 +902,7 @@ extension ArtistDetailViewController {
     }
 }
 extension ArtistDetailViewController:CustomViewContainerDelegate{
+ 
     func openUrl(string: String) {
         //eventUrl = string
         //self.performSegue(withIdentifier: "bookEvent", sender: self)

@@ -49,15 +49,20 @@ class EventsMapViewController: UIViewController, MKMapViewDelegate{
                     let lat = events["lat"] as? Double
                     let lng = events["lng"] as? Double
                     let eventDate = events["date"] as? Date
+                    let subtitleString = events["venue"] as? String
+                    let eventName = events["location"] as? String
+                    if (lat == nil) || (lng == nil) {
+                        continue
+                    }
                     let dateFormatterLabel = DateFormatter()
                     dateFormatterLabel.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
                     let rawDateString = dateFormatterLabel.string(from: eventDate!)
-                    let subtitleString = events["venue"] as? String
+                    
                     let dateFormatter = DateFormatter()
                     dateFormatter.dateFormat = "MMM dd,yyyy"
                     let dateS = dateFormatter.string(from: eventDate!)
                     let coordinate = CLLocationCoordinate2D(latitude:CLLocationDegrees(lat!),longitude:CLLocationDegrees(lng!))
-                    let eventName = events["location"] as? String
+                    
                     let annotation = MKPointAnnotation()
                     annotation.coordinate = coordinate
                     annotation.title = events["location"] as? String

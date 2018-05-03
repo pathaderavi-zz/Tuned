@@ -50,9 +50,9 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     var fetchedSocialsController:NSFetchedResultsController<Socials>!
     var borderBool:Bool = false
     var eventUrl:String!
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
+    
+
+
     @IBAction func eventsMapButton(_ sender: Any) {
         performSegue(withIdentifier: "eventsMap", sender: self)
     }
@@ -110,8 +110,6 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
         self.onTour.isHidden = true
         onTour.layer.cornerRadius = onTour.frame.width/2
         onTour.layer.masksToBounds = true
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(imageFit), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
         
         let updatedName = artistName.replacingOccurrences(of: " " , with: "+")
         imageView.image = UIImage(data:imageData)
@@ -306,29 +304,22 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     
     @objc func imageFit(){
         let iPad = ( UIDevice.current.userInterfaceIdiom == .pad || UIDevice.current.userInterfaceIdiom == .unspecified)
-        if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight || (UIDevice.current.orientation == .portraitUpsideDown)){
-            if iPad{
-                imageView.contentMode = UIViewContentMode.scaleAspectFit
-            }else{
-                imageView.contentMode = UIViewContentMode.scaleAspectFit
-            }
-            if activeContainer == 1 {
-                activateBorder(button: bioButton)
-            }else if activeContainer == 2 {
-                activateBorder(button: tracksButton)
-            }else {
-                activateBorder(button: eventsButton)
-            }
-            
-        }else if(UIDevice.current.orientation == .portrait  || UIDevice.current.orientation == .portraitUpsideDown ){
-            if iPad{
-                imageView.contentMode = UIViewContentMode.scaleAspectFit
-            }else{
-                imageView.contentMode = UIViewContentMode.scaleAspectFill
-            }
-            
+        if activeContainer == 1 {
+            activateBorder(button: bioButton)
+        }else if activeContainer == 2 {
+            activateBorder(button: tracksButton)
+        }else {
+            activateBorder(button: eventsButton)
+        }
+        if iPad {
+              imageView.contentMode = UIViewContentMode.scaleAspectFit
+        }
+        else {
+        if (view.frame.height > view.frame.width) {
+            imageView.contentMode = UIViewContentMode.scaleAspectFill
         }else{
             imageView.contentMode = UIViewContentMode.scaleAspectFit
+        }
         }
         
     }
@@ -339,18 +330,21 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     @IBOutlet weak var yelloFav: UIButton!
     @IBOutlet weak var favButton: UIButton!
     let border = CALayer()
+    var rotateBool:Bool = true
     fileprivate func activateBorder(button:UIButton) {
         if let count = (button.layer.sublayers?.count) {
             if count > 1{
                 // return
             }
         }
+        if rotateBool{
         let appearAnimation = CABasicAnimation(keyPath: "opacity")
         appearAnimation.fromValue = 0
         appearAnimation.toValue = button.frame.size.width
         appearAnimation.duration = 10
         button.layer.add(appearAnimation, forKey: "opacity")
-        
+            rotateBool = false
+        }
         self.border.frame = CGRect(x: 0, y: button.frame.origin.y + button.frame.height - 1, width: button.frame.size.width, height: 1)
         self.border.backgroundColor = UIColor.white.cgColor
         if self.border.superlayer != nil {
@@ -361,6 +355,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     
     @IBAction func bioButtonClicked(_ sender: Any) {
         activeContainer = 1
+        rotateBool = true
         self.activateBorder(button:self.bioButton)
         UIView.animate(
             withDuration: 0.2,
@@ -374,6 +369,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     }
     @IBAction func topTracksButtonClicked(_ sender: Any) {
         activeContainer = 2
+        rotateBool = true
         self.activateBorder(button:self.tracksButton)
         UIView.animate(
             withDuration: 0.2,
@@ -422,6 +418,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        NotificationCenter.default.addObserver(self, selector: #selector(imageFit), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
         if eventsContainer.alpha == 1 {
             if eventsController != nil {
                 eventsController.allSongKickEvents = allSongKickEvents
@@ -431,6 +428,7 @@ class ArtistDetailViewController: UIViewController,UIScrollViewDelegate,NSFetche
     }
     @IBAction func eventsButtonClicked(_ sender: Any) {
         activeContainer = 3
+        rotateBool = true
         self.activateBorder(button:self.eventsButton)
         UIView.animate(
             withDuration: 0.2,
@@ -752,6 +750,8 @@ extension ArtistDetailViewController{
     }
     
     override func viewWillDisappear(_ animated: Bool) {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+        NotificationCenter.default.removeObserver(self)
         do {
             try saveonDisappear()
         }catch let e {
@@ -894,6 +894,7 @@ extension ArtistDetailViewController {
         if segue.identifier != nil && segue != nil {
             if segue.identifier! == "eventsMap"{
                 if let eventsMapController = segue.destination as? EventsMapViewController{
+                    print(allSongKickEvents)
                     eventsMapController.allSongKickEvents = allSongKickEvents
                     eventsMapController.previousController = self
                 }

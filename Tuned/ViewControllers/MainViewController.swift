@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import StoreKit
 
 class MainViewController: UIViewController,UICollectionViewDelegate,UICollectionViewDataSource,NSFetchedResultsControllerDelegate,UISearchBarDelegate,UITableViewDelegate,UITableViewDataSource {
     
@@ -39,20 +40,32 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     override func viewDidDisappear(_ animated: Bool) {
         fetchedResultsController = nil
     }
-    deinit {
-        NotificationCenter.default.removeObserver(self)
+ 
+    func requestReview(){
+        let userDefaults = UserDefaults()
+        let runCount = userDefaults.integer(forKey: "runs")
+        var runs = 0
+        if runCount != nil {
+            runs = runCount
+        }
+        if runs == 2 {
+            if #available(iOS 10.3, *){
+                SKStoreReviewController.requestReview()
+            }
+        }
     }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationItem.title = "Tunies"
+        
         searchTableView.alpha = 0
         searchTableView.delegate = self
         searchTableView.dataSource = self
         searchTableView.bounces = false
         navigationItem.leftBarButtonItem?.isEnabled = false
         navigationItem.rightBarButtonItem?.isEnabled = true
-        NotificationCenter.default.addObserver(self, selector: #selector(setupFlowLayout), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(visibleCollectionViewCellsReload), name: .UIApplicationDidBecomeActive, object: nil)
+       
         searchBar.delegate = self
         searchBar.setValue("Show All", forKey:"_cancelButtonText")
         searchBar.placeholder = "Showing Top Artists"
@@ -77,13 +90,26 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
                 
             }
             
+            DispatchQueue.main.asyncAfter(deadline: .now(), execute: {
+                self.requestReview()
+            })
+           
         }
         
     }
-    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .UIApplicationDidBecomeActive, object: nil)
+        NotificationCenter.default.removeObserver(self)
+    }
     override func viewWillAppear(_ animated: Bool) {
-        self.setupFlowLayout()
         super.viewWillAppear(animated)
+        NotificationCenter.default.addObserver(self, selector: #selector(setupFlowLayout), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(visibleCollectionViewCellsReload), name: .UIApplicationDidBecomeActive, object: nil)
+        
+        self.setupFlowLayout()
+
         if !showSavedBool{
             if collectionView != nil {
                 collectionView.reloadItems(at: collectionView.indexPathsForVisibleItems)
@@ -411,8 +437,11 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     
     
     @objc func setupFlowLayout(){
+        if collectionView != nil {
+            collectionView.reloadItems(at: collectionView.indexPathsForVisibleItems)
+        }
         let iPad = (UIDevice.current.userInterfaceIdiom == .pad) || (UIDevice.current.userInterfaceIdiom == .unspecified)
-        let faceUp = (UIDevice.current.orientation == .faceDown)
+
         if iPad /*&& !faceUp*/{
             //            if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight){
             //                
@@ -434,20 +463,22 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
             //            }
             
         }else{
-            if(UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight){
-                let space:CGFloat = 3.0
-                let dimension = (view.frame.size.width - (2 * space)) / 3.0
-                
-                flowLayout.minimumInteritemSpacing = space
-                flowLayout.minimumLineSpacing = space
-                flowLayout.itemSize = CGSize(width: dimension, height: dimension*1.6)
-            }else if(UIDevice.current.orientation == .portrait || UIDevice.current.orientation == .portraitUpsideDown){
+            let faceUp = (view.frame.height > view.frame.width)
+            
+            if faceUp {
                 let space:CGFloat = 3.0
                 let dimension = (view.frame.size.width - (2 * space)) / 2.0
                 
                 flowLayout.minimumInteritemSpacing = space
                 flowLayout.minimumLineSpacing = space
                 flowLayout.itemSize = CGSize(width: dimension, height: dimension*1.60)
+            }else{
+                let space:CGFloat = 3.0
+                let dimension = (view.frame.size.width - (2 * space)) / 3.0
+                
+                flowLayout.minimumInteritemSpacing = space
+                flowLayout.minimumLineSpacing = space
+                flowLayout.itemSize = CGSize(width: dimension, height: dimension*1.6)
             }
             
         }

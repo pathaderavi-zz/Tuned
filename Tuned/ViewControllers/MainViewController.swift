@@ -40,7 +40,7 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     override func viewDidDisappear(_ animated: Bool) {
         fetchedResultsController = nil
     }
- 
+
     func requestReview(){
         let userDefaults = UserDefaults()
         let runCount = userDefaults.integer(forKey: "runs")
@@ -105,6 +105,7 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        fetchAllArtists()
         NotificationCenter.default.addObserver(self, selector: #selector(setupFlowLayout), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(visibleCollectionViewCellsReload), name: .UIApplicationDidBecomeActive, object: nil)
         
@@ -120,9 +121,13 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
             collectionView.reloadData()
             if fetchedResultsController.fetchedObjects?.count == 0 {
                 noArtistsSavedLabel.alpha = 1
+                noArtistsSavedLabel.text = "No Artists Saved"
+           
             }else{
                 noArtistsSavedLabel.alpha = 0
+   
             }
+
         }
         
         
@@ -134,6 +139,10 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 1
     }
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: false)
         let sb = searchBar
@@ -425,6 +434,7 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
             fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates:predicateArray)
             //searchAsked = false
         }
+        
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
         try? fetchedResultsController.performFetch()
         
@@ -432,12 +442,19 @@ class MainViewController: UIViewController,UICollectionViewDelegate,UICollection
     
     
     @objc func visibleCollectionViewCellsReload(){
-        collectionView.reloadItems(at: collectionView.indexPathsForVisibleItems)
+        //Check here
+        if showSavedBool {
+            fetchAllArtists()
+            collectionView.reloadData()
+        }else{
+            collectionView.reloadItems(at: collectionView.indexPathsForVisibleItems)
+        }
     }
     
     
     @objc func setupFlowLayout(){
-        if collectionView != nil {
+        if collectionView != nil && !showSavedBool{
+            
             collectionView.reloadItems(at: collectionView.indexPathsForVisibleItems)
         }
         let iPad = (UIDevice.current.userInterfaceIdiom == .pad) || (UIDevice.current.userInterfaceIdiom == .unspecified)
